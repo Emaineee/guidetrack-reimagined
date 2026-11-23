@@ -15,11 +15,11 @@ const roles = {
 const staffRoles = { cardino: 'coordinator', vanguardia: 'counselor', endrinal: 'associate', guevarra: 'psychometrician' };
 const services = ['Guidance consultation', 'Follow-up consultation', 'Psychological testing'];
 const titles = {
-  home: 'Overview', dashboard: 'Dashboard', appointments: 'Appointments',
+  home: 'Overview', dashboard: 'Dashboard', appointments: 'Appointments', calendar: 'Calendar',
   'walk-in': 'Walk-ins', guidance: 'Guidance Personnel', messages: 'Messaging',
   referrals: 'Referrals', resources: 'Resources', wellbeing: 'Student Well-being',
 };
-const state = { role: 'student', visits: [], messages: [], referrals: [], nextId: 1 };
+const state = { role: 'student', visits: [], messages: [], referrals: [], nextId: 1, calendar: { month: '', day: '', staff: '', status: '', kind: '' } };
 const timeZone = 'Asia/Manila';
 const dateFormat = new Intl.DateTimeFormat('en-PH', { timeZone, dateStyle: 'medium', timeStyle: 'short' });
 const partsFormat = new Intl.DateTimeFormat('sv-SE', {
@@ -157,12 +157,33 @@ function shiftSixMonths(value) {
   return local.getTime() - 8 * 60 * minute;
 }
 
+const openingTime = '08:00';
+const closingTime = '18:00';
+const timeOptions = Array.from({ length: 41 }, (_, index) => {
+  const minutes = 8 * 60 + index * 15;
+  const hour = Math.floor(minutes / 60);
+  const minuteText = String(minutes % 60).padStart(2, '0');
+  const value = String(hour).padStart(2, '0') + ':' + minuteText;
+  return `<option value="${value}">${hour % 12 || 12}:${minuteText} ${hour < 12 ? 'AM' : 'PM'}</option>`;
+}).join('');
+
+function isOfficeTime(time) {
+  return /^\d{2}:(00|15|30|45)$/.test(time) && time >= openingTime && time <= closingTime;
+}
+
+function visitDateFields(prefix, label, minimum, date = '') {
+  return `<div class="visit-date-fields">
+    ${field(label, prefix + '-date', `<input id="${prefix}-date" type="date" min="${minimum}" value="${date}" required>`)}
+    ${field('Time (PHT)', prefix + '-time', select(prefix + '-time', timeOptions, 'Choose a time'))}
+  </div><p class="office-hours">Appointment hours are 8:00 AM to 6:00 PM Philippine time.</p>`;
+}
+
 function visitForm(walkIn) {
   const now = Date.now();
   return `<form id="visit-form" class="workflow-form" data-kind="${walkIn ? 'walk-in' : 'appointment'}">
     ${field('Service', 'service', select('service', serviceOptions, 'Choose a service'))}
     ${field('Guidance personnel', 'personnel', select('personnel', staffOptions, 'Choose a team member'))}
-    ${walkIn ? '' : field('Date and time (PHT)', 'scheduled', `<input id="scheduled" type="datetime-local" min="${asInput(now + 11 * minute)}" required>`)}
+    ${walkIn ? '' : visitDateFields('scheduled', 'Appointment date', asInput(now).slice(0, 10))}
     <button class="btn maroon" type="submit">${walkIn ? 'Record walk-in' : 'Schedule appointment'}</button>
   </form>`;
 }
@@ -190,7 +211,7 @@ function visitCard(visit) {
   }
   return `<article class="visit-card">
     <div class="visit-heading"><h3>${visit.service}</h3><span class="visit-status">${visit.status}</span></div>
-    <p>${visit.kind === 'walk-in' ? 'Walk-in' : 'Appointment'} &middot; ${selectedPerson(visit.person).name}</p>
+    <p>${visit.kind === 'walk-in' ? 'Walk-in' : visit.followUpOf ? 'Return visit' : 'Appointment'} &middot; ${selectedPerson(visit.person).name}</p>
     <dl class="visit-times">
       <div><dt>${visit.kind === 'walk-in' ? 'Checked in' : 'Scheduled for'}</dt><dd>${timestamp(visit.scheduled)}</dd></div>
       <div><dt>Recorded</dt><dd>${timestamp(visit.createdAt)}</dd></div>
@@ -210,7 +231,7 @@ function visitsList(visits) {
 function appointments() {
   return intro('Appointments', 'Schedule a visit in Philippine time. Reminders appear here within 10 minutes of the start time while GuideTrack is open.') +
     `<div class="two-col"><section class="panel"><h2 class="section-title">Schedule a visit</h2>
-    ${previewNote()}${visitForm(false)}</section><section class="panel"><h2 class="section-title">Scheduled visits</h2>
+    ${previewNote()}${visitForm(false)}</section><section class="panel"><div class="calendar-list-heading"><h2 class="section-title">Scheduled visits</h2><a class="workflow-link" href="#calendar">Open calendar</a></div>
     ${visitsList(state.visits.filter(visit => visit.kind === 'appointment' && canSeeVisit(visit)))}</section></div>`;
 }
 
@@ -324,7 +345,97 @@ function wellbeing(section) {
     </div>`;
 }
 
-const pages = { home, dashboard, appointments, 'walk-in': walkIns, guidance, messages, referrals, resources, wellbeing };
+const calendarMonthLabel = new Intl.DateTimeFormat('en-PH', { timeZone: 'UTC', month: 'long', year: 'numeric' });
+const calendarDayLabel = new Intl.DateTimeFormat('en-PH', { timeZone: 'UTC', dateStyle: 'full' });
+const calendarTimeLabel = new Intl.DateTimeFormat('en-PH', { timeZone, timeStyle: 'short' });
+const calendarStatuses = ['Scheduled', 'Waiting', 'Ongoing', 'Completed'];
+const calendarKinds = { appointment: 'Appointments', 'walk-in': 'Walk-ins', 'follow-up': 'Return visits' };
+const calendarDate = value => new Date(value + 'T00:00:00Z');
+const dateKey = date => date.toISOString().slice(0, 10);
+const monthKey = date => dateKey(date).slice(0, 7);
+const visitDay = visit => asInput(visit.scheduled).slice(0, 10);
+const visitKind = visit => visit.followUpOf ? 'follow-up' : visit.kind;
+
+function calendarGridDays(month) {
+  const first = calendarDate(month + '-01');
+  first.setUTCDate(1 - first.getUTCDay());
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(first);
+    date.setUTCDate(first.getUTCDate() + index);
+    return date;
+  });
+}
+
+function calendarVisits(filters) {
+  return state.visits.filter(visit => canSeeVisit(visit) &&
+    (!filters.staff || visit.person === filters.staff) &&
+    (!filters.status || visit.status === filters.status) &&
+    (!filters.kind || visitKind(visit) === filters.kind))
+    .sort((a, b) => a.scheduled - b.scheduled);
+}
+
+function calendarFilter(id, label, options, selected) {
+  return field(label, id, `<select id="${id}" data-calendar-filter><option value="">All ${label.toLowerCase()}</option>
+    ${options.map(([value, text]) => `<option value="${value}" ${value === selected ? 'selected' : ''}>${text}</option>`).join('')}</select>`);
+}
+
+function calendar() {
+  const filters = state.calendar;
+  const today = asInput(Date.now()).slice(0, 10);
+  filters.month ||= today.slice(0, 7);
+  filters.day ||= today;
+  const visits = calendarVisits(filters);
+  const byDay = new Map();
+  for (const visit of visits) {
+    const key = visitDay(visit);
+    if (!byDay.has(key)) byDay.set(key, []);
+    byDay.get(key).push(visit);
+  }
+  const activeMonth = visits.filter(visit => visitDay(visit).startsWith(filters.month + '-'));
+  const selected = byDay.get(filters.day) ?? [];
+  const monthLabel = calendarMonthLabel.format(calendarDate(filters.month + '-01'));
+  return intro('Guidance calendar', 'See scheduled appointments, walk-ins, and return visits in Philippine time. The calendar updates as you work in this preview.') +
+    `<div class="calendar-overview" aria-label="Visible visit totals for this month">
+      ${calendarStatuses.map(status => `<div class="calendar-total"><span>${status}</span><strong>${activeMonth.filter(visit => visit.status === status).length}</strong></div>`).join('')}
+    </div>
+    <section class="panel calendar-panel" aria-label="Monthly calendar">
+      <div class="calendar-toolbar">
+        <h2 class="section-title" aria-live="polite">${monthLabel}</h2>
+        <div class="calendar-nav">
+          <button class="btn outline" type="button" data-calendar-move="previous" aria-label="Previous month">&larr;</button>
+          <button class="btn light" type="button" data-calendar-move="today">Today</button>
+          <button class="btn outline" type="button" data-calendar-move="next" aria-label="Next month">&rarr;</button>
+        </div>
+        <a class="btn maroon" href="#appointments">Schedule a visit</a>
+      </div>
+      <div class="calendar-filters">
+        ${calendarFilter('calendar-staff', 'Staff', personnel.map(({id, name}) => [id, name]), filters.staff)}
+        ${calendarFilter('calendar-status', 'Statuses', calendarStatuses.map(status => [status, status]), filters.status)}
+        ${calendarFilter('calendar-kind', 'Types', Object.entries(calendarKinds), filters.kind)}
+      </div>
+      <div class="calendar-grid">
+        ${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => `<span class="calendar-weekday" aria-hidden="true">${day}</span>`).join('')}
+        ${calendarGridDays(filters.month).map(date => {
+          const key = dateKey(date);
+          const events = byDay.get(key) ?? [];
+          return `<button type="button" class="calendar-day${monthKey(date) === filters.month ? '' : ' calendar-outside'}" data-calendar-day="${key}"
+            aria-pressed="${key === filters.day}" ${key === today ? 'aria-current="date"' : ''}
+            aria-label="${calendarDayLabel.format(date)}, ${events.length} ${events.length === 1 ? 'visit' : 'visits'}">
+            <span class="calendar-day-number">${date.getUTCDate()}</span>
+            ${events.length ? `<span class="calendar-day-count">${events.length}</span>` : ''}
+            ${events.slice(0, 2).map(visit => `<span class="calendar-event" data-status="${visit.status}">${calendarTimeLabel.format(visit.scheduled)} &middot; ${visit.status}</span>`).join('')}
+            ${events.length > 2 ? `<span class="calendar-event calendar-more">+${events.length - 2} more</span>` : ''}
+          </button>`;
+        }).join('')}
+      </div>
+    </section>
+    <section class="panel calendar-agenda" aria-label="Selected day agenda">
+      <h2 class="section-title">${calendarDayLabel.format(calendarDate(filters.day))}</h2>
+      ${selected.length ? visitsList(selected) : '<p class="empty">No visits match the filters for this date.</p>'}
+    </section>`;
+}
+
+const pages = { home, dashboard, appointments, calendar, 'walk-in': walkIns, guidance, messages, referrals, resources, wellbeing };
 
 function render(scroll = true) {
   const [route, personId] = location.hash.slice(1).split('/');
@@ -352,8 +463,8 @@ function render(scroll = true) {
   }
 }
 
-function addVisit(kind, service, person, scheduled, now) {
-  state.visits.unshift({ id: state.nextId++, kind, service, person, scheduled, createdAt: now, status: kind === 'walk-in' ? 'Waiting' : 'Scheduled' });
+function addVisit(kind, service, person, scheduled, now, followUpOf = null) {
+  state.visits.unshift({ id: state.nextId++, kind, service, person, scheduled, createdAt: now, followUpOf, status: kind === 'walk-in' ? 'Waiting' : 'Scheduled' });
 }
 
 content.addEventListener('submit', event => {
@@ -368,7 +479,12 @@ content.addEventListener('submit', event => {
       toast('Choose a service supported by this staff preview role.');
       return;
     }
-    const scheduled = kind === 'walk-in' ? now : fromInput(value('scheduled'));
+    const time = kind === 'walk-in' ? '' : value('scheduled-time');
+    if (kind !== 'walk-in' && !isOfficeTime(time)) {
+      toast('Choose a time between 8:00 AM and 6:00 PM PHT.');
+      return;
+    }
+    const scheduled = kind === 'walk-in' ? now : fromInput(value('scheduled-date') + 'T' + time);
     if (!Number.isFinite(scheduled) || (kind !== 'walk-in' && scheduled < now + 10 * minute)) {
       toast('Choose an appointment time at least 10 minutes from now.');
       return;
@@ -377,15 +493,20 @@ content.addEventListener('submit', event => {
     toast(kind === 'walk-in' ? 'Walk-in recorded.' : 'Preview appointment scheduled.');
   } else if (form.id === 'return-form') {
     const visit = state.visits.find(item => item.id === Number(form.dataset.id));
-    const scheduled = fromInput(value('return-date'));
+    const time = value('return-time');
+    const scheduled = fromInput(value('return-date') + 'T' + time);
     if (!visit || !canManage(visit) || visit.status !== 'Completed' || visit.returnAt) return;
+    if (!isOfficeTime(time)) {
+      toast('Choose a return time between 8:00 AM and 6:00 PM PHT.');
+      return;
+    }
     if (!Number.isFinite(scheduled) || scheduled < Math.max(now + 10 * minute, shiftSixMonths(visit.completedAt))) {
       toast('Choose a return time at least six months after the completed visit and 10 minutes from now.');
       return;
     }
     visit.returnAt = scheduled;
     const service = visit.service === 'Psychological testing' ? visit.service : 'Follow-up consultation';
-    addVisit('appointment', service, visit.person, scheduled, now);
+    addVisit('appointment', service, visit.person, scheduled, now, visit.id);
     const notice = { from: 'University Guidance Center', time: now, body: 'Your return visit is scheduled for ' + timestamp(scheduled) + '.' };
     state.messages.unshift({ ...notice, role: 'student' }, { ...notice, role: state.role });
     toast('Return appointment and preview notice created.');
@@ -414,6 +535,13 @@ content.addEventListener('input', event => {
 });
 
 content.addEventListener('change', event => {
+  if (Object.hasOwn(event.target.dataset, 'calendarFilter')) {
+    const { id, value } = event.target;
+    state.calendar[id.slice('calendar-'.length)] = value;
+    render(false);
+    content.querySelector('#' + id).focus();
+    return;
+  }
   if (event.target.id === 'directory-role') {
     updateDirectory();
     return;
@@ -425,6 +553,31 @@ content.addEventListener('change', event => {
 });
 
 content.addEventListener('click', async event => {
+  const dayButton = event.target.closest('[data-calendar-day]');
+  if (dayButton) {
+    const day = dayButton.dataset.calendarDay;
+    state.calendar.day = day;
+    state.calendar.month = day.slice(0, 7);
+    render(false);
+    content.querySelector(`[data-calendar-day="${day}"]`)?.focus();
+    return;
+  }
+  const calendarButton = event.target.closest('[data-calendar-move]');
+  if (calendarButton) {
+    const move = calendarButton.dataset.calendarMove;
+    if (move === 'today') {
+      state.calendar.day = asInput(Date.now()).slice(0, 10);
+      state.calendar.month = state.calendar.day.slice(0, 7);
+    } else {
+      const month = calendarDate(state.calendar.month + '-01');
+      month.setUTCMonth(month.getUTCMonth() + (move === 'next' ? 1 : -1));
+      state.calendar.month = monthKey(month);
+      state.calendar.day = dateKey(month);
+    }
+    render(false);
+    content.querySelector(`[data-calendar-move="${move}"]`)?.focus();
+    return;
+  }
   const copy = event.target.closest('[data-copy-email]');
   if (copy) {
     try {
@@ -461,9 +614,9 @@ content.addEventListener('click', async event => {
     visit.completedAt = now;
   } else if (action === 'return' && visit.status === 'Completed' && !visit.returnAt) {
     content.querySelector('#return-form')?.remove();
-    const minimum = asInput(Math.ceil(Math.max(now + 10 * minute, shiftSixMonths(visit.completedAt)) / minute) * minute);
+    const minimum = asInput(Math.max(now + 10 * minute, shiftSixMonths(visit.completedAt))).slice(0, 10);
     button.closest('.visit-card').insertAdjacentHTML('beforeend', `<form id="return-form" data-id="${visit.id}" class="workflow-form">
-      ${field('Return date and time (PHT)', 'return-date', `<input type="datetime-local" id="return-date" min="${minimum}" value="${minimum}" required>`)}
+      ${visitDateFields('return', 'Return date', minimum, minimum)}
       <button class="btn maroon" type="submit">Confirm return date</button>
     </form>`);
     content.querySelector('#return-date').focus();
