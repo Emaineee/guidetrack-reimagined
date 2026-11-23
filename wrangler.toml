@@ -16,3 +16,11 @@ database_name = "guidetrack-accounts"
 name = "AUTH_LIMIT"
 namespace_id = "74613892"
 simple = { limit = 10, period = 60 }
+
+[ai]
+binding = "AI"
+
+[[ratelimits]]
+name = "CHAT_LIMIT"
+namespace_id = "74613893"
+simple = { limit = 10, period = 60 }

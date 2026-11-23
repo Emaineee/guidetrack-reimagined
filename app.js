@@ -17,7 +17,7 @@ const services = ['Guidance consultation', 'Follow-up consultation', 'Psychologi
 const titles = {
   home: 'Overview', dashboard: 'Dashboard', appointments: 'Appointments',
   'walk-in': 'Walk-ins', guidance: 'Guidance Personnel', messages: 'Messaging',
-  referrals: 'Referrals', resources: 'Resources',
+  referrals: 'Referrals', resources: 'Resources', wellbeing: 'Student Well-being',
 };
 const state = { role: 'student', visits: [], messages: [], referrals: [], nextId: 1 };
 const timeZone = 'Asia/Manila';
@@ -65,6 +65,7 @@ function home() {
     ['appointments', 'Book an appointment', 'Choose a guidance service and a campus date and time.'],
     ['walk-in', 'Walk-in visits', 'See how the Guidance Center records an unscheduled visit.'],
     ['guidance', 'Meet the Guidance Personnel', 'Find your counselor and the rest of the Guidance Center team.'],
+    ['wellbeing', 'Student Well-being', 'Explore self-help tools, group support topics, and how to help a friend.'],
   ];
   return `<section class="hero"><div class="hero-copy">
     <div class="eyebrow">UNIVERSITY GUIDANCE CENTER</div>
@@ -221,7 +222,59 @@ function resources() {
     </div>`;
 }
 
-const pages = { home, dashboard, appointments, 'walk-in': walkIns, guidance, messages, referrals, resources };
+const wellbeingTopics = [
+  ['stress', 'Academic stress and time management', 'Choose one priority for today. Break it into a small first step and make time for a short break.', 'https://www.nimh.nih.gov/health/publications/so-stressed-out-fact-sheet'],
+  ['sleep', 'Sleep and daily routines', 'Try a consistent wake-up time, regular meals, and a quiet wind-down routine.', 'https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health'],
+  ['connection', 'Belonging and social connection', 'Choose a low-pressure way to connect, such as checking in with a classmate or joining a campus activity.', 'https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health'],
+  ['friend', 'Helping a friend', 'Ask how they are doing, listen without judgment, and offer to help them contact a trusted person or counselor.', 'https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health'],
+];
+
+function wellbeing(section) {
+  return intro('Student Well-being', 'Find self-help resources, prepare for a guidance visit, and learn how to connect with support.') + `
+    <div class="two-col wellbeing-grid">
+      <section class="panel">
+        <h2 class="section-title">Find the right support</h2>
+        <div class="wellbeing-options">
+          <a class="btn maroon" href="#appointments">Explore appointments</a>
+          <a class="btn light" href="#guidance">Contact Guidance Personnel</a>
+          <a class="btn light" href="#referrals">Explore referrals</a>
+          <a class="btn outline" href="#wellbeing/urgent">Urgent support</a>
+        </div>
+      </section>
+      <section class="panel">
+        <h2 class="section-title">Prepare for a guidance visit</h2>
+        <ul class="wellbeing-checklist">
+          <li><label><input type="checkbox"> Think of one thing you want support with.</label></li>
+          <li><label><input type="checkbox"> Decide what questions you want to ask.</label></li>
+          <li><label><input type="checkbox"> Check your schedule for a time you can meet.</label></li>
+        </ul>
+      </section>
+      <section class="panel">
+        <h2 class="section-title">Self-help library</h2>
+        ${wellbeingTopics.map(([id, title, summary, url]) => `<details ${section === id ? 'open' : ''}><summary>${title}</summary>
+          <p>${summary}</p><a class="workflow-link" href="${url}" target="_blank" rel="noopener noreferrer">Read more at NIMH</a></details>`).join('')}
+      </section>
+      <section class="panel">
+        <h2 class="section-title">Workshops and group support</h2>
+        <p>Ask the Guidance Center about availability for these topics.</p>
+        <ul><li>Managing exam stress</li><li>Adjusting to university life</li><li>Building healthy relationships</li><li>Career exploration and decision-making</li></ul>
+        <a class="btn light" href="#guidance">Find a team member to ask</a>
+      </section>
+      <section class="panel">
+        <h2 class="section-title">Frequently asked questions</h2>
+        <details><summary>Do I need to know what is wrong before asking for support?</summary><p>You can reach out even if you are unsure what you need. Start by sharing what has been difficult or what you would like help with.</p></details>
+        <details><summary>Can I ask about privacy before a guidance visit?</summary><p>Yes. Ask the counselor how records are handled and what exceptions may apply before sharing sensitive information.</p></details>
+        <details><summary>How do I ask about psychological testing?</summary><p>Choose Psychological testing in Appointments or ask the Guidance Center psychometrician about eligibility and available assessments.</p></details>
+      </section>
+      <section class="panel wellbeing-urgent" aria-labelledby="urgent-heading">
+        <h2 id="urgent-heading" class="section-title">Urgent support</h2>
+        <p>If you or someone else may be in immediate danger, contact local emergency services or go to the nearest emergency department now. If you can, contact a trusted person who can stay with you.</p>
+        <p>The well-being chat is for general information. If you need personal support, speak with a counselor or health professional.</p>
+      </section>
+    </div>`;
+}
+
+const pages = { home, dashboard, appointments, 'walk-in': walkIns, guidance, messages, referrals, resources, wellbeing };
 
 function render(scroll = true) {
   const [route, personId] = location.hash.slice(1).split('/');
@@ -233,12 +286,15 @@ function render(scroll = true) {
     if (current) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   });
-  content.innerHTML = pages[page]();
+  content.innerHTML = page === 'wellbeing' ? wellbeing(personId) : pages[page]();
   if (page === 'messages' && selectedPerson(personId)) content.querySelector('#recipient').value = personId;
   if (scroll) {
     document.querySelector('.sidebar').classList.remove('open');
     document.querySelector('#menu').setAttribute('aria-expanded', 'false');
-    window.scrollTo(0, 0);
+    if (page === 'wellbeing' && personId === 'urgent') {
+      content.querySelector('.wellbeing-urgent').scrollIntoView();
+      document.querySelector('#awareness-chat').open = false;
+    } else window.scrollTo(0, 0);
   }
 }
 

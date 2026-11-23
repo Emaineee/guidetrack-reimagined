@@ -1,3 +1,4 @@
+import { awarenessReply } from './awareness.mjs';
 import { openAccount, revokeSession, validSession } from './accounts.mjs';
 
 const cookieName = '__Host-guidetrack';
@@ -55,6 +56,22 @@ export default {
     const { pathname } = url;
     if (request.method === 'POST') {
       if (request.headers.get('Origin') !== url.origin) return new Response('Forbidden', { status: 403 });
+      if (pathname === '/api/awareness') {
+        try {
+          const token = sessionToken(request);
+          if (!token || !(await validSession(env.ACCOUNTS, token))) return new Response(null, { status: 401 });
+          const { success } = await env.CHAT_LIMIT.limit({ key: request.headers.get('CF-Connecting-IP') || 'local' });
+          if (!success) return new Response(null, { status: 429 });
+          const body = await request.text();
+          if (body.length > 5000) return new Response(null, { status: 400 });
+          const { message } = JSON.parse(body);
+          if (typeof message !== 'string' || !message.trim() || message.length > 800) return new Response(null, { status: 400 });
+          const reply = await awarenessReply(message.trim(), env.AI);
+          return Response.json({ reply }, { headers: { 'Cache-Control': 'no-store' } });
+        } catch (error) {
+          return new Response(null, { status: error instanceof SyntaxError ? 400 : 503 });
+        }
+      }
       if (pathname === '/auth/login') return account(request, env, false);
       if (pathname === '/auth/signup') return account(request, env, true);
       if (pathname === '/auth/logout') {
