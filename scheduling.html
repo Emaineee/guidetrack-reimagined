@@ -7,12 +7,13 @@
   <link rel="stylesheet" href="styles.css?v=maroon-yellow">
   <link rel="stylesheet" href="workspace.css?v=guidance-calendar">
   <link rel="stylesheet" href="scheduling.css?v=request-tools">
+<link rel="stylesheet" href="/portal-shell.css">
 </head>
 <body class="portal-page">
   <header class="topbar scheduling-header">
     <a class="workflow-link" href="/">GuideTrack overview</a>
     <a id="staff-test-link" class="btn outline" href="/staff-test" hidden>Staff test view</a>
-    <form method="post" action="/auth/logout"><button class="btn maroon" type="submit">Log out</button></form>
+    <div class="top-right"><a class="btn outline" href="/settings.html">Settings</a><form method="post" action="/auth/logout"><button class="btn maroon" type="submit">Log out</button></form></div>
   </header>
   <main class="content scheduling-content">
     <div class="calendar-toolbar scheduling-heading">
@@ -22,6 +23,7 @@
     <p id="scheduling-status" class="note" role="status" hidden></p>
     <div id="scheduling-workspace"></div>
   </main>
-  <script src="scheduling.js?v=request-tools" defer></script>
+  <script src="scheduling.js?v=workspace-shell" defer></script>
+  <script src="/preferences.js" defer></script>
 </body>
 </html>

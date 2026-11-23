@@ -5,21 +5,20 @@ const routes = [
   ['Preview calendar', '/#calendar', 'Explore appointment workflows with sample visits'],
   ['Student Well-being', '/#wellbeing', 'Self-help and workshop topics'],
   ['Urgent support', '/#wellbeing/urgent', 'Find urgent help'],
-  ['Student Toolkit', '/toolkit.html', 'Study plans, checklists, routines, and focus timer'],
+  ['My requests', '/scheduling.html#my-requests', 'Track appointment and referral status'],
+  ['Settings', '/settings.html', 'Display, text size, and motion preferences'],
   ['Resources', '/#resources', 'Guidance and campus resources'],
 ];
 const searchDialog = document.querySelector('#portal-search');
 const searchOpener = document.querySelector('#portal-search-open');
 const searchInput = document.querySelector('#portal-query');
-const preferences = document.querySelector('#portal-preferences');
-const preferencesKey = 'guidetrack-display-preferences';
 
 function showResults() {
   const terms = searchInput.value.trim().toLowerCase().split(/\s+/);
   const results = routes.filter(([title,, description]) => terms.every(term => (title + ' ' + description).toLowerCase().includes(term)));
   document.querySelector('#portal-results').innerHTML = results.length
     ? results.map(([title, href, description]) => `<a href="${href}"><strong>${title}</strong><span>${description}</span></a>`).join('')
-    : '<p>No pages match. Try calendar, support, or toolkit.</p>';
+    : '<p>No pages match. Try calendar, support, or settings.</p>';
 }
 
 function openSearch() {
@@ -35,7 +34,7 @@ searchDialog.querySelector('#portal-results').addEventListener('click', event =>
   if (event.target.closest('a')) searchDialog.close();
 });
 document.addEventListener('keydown', event => {
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && !preferences.open) {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
     event.preventDefault();
     openSearch();
   }
@@ -44,30 +43,27 @@ document.addEventListener('keydown', event => {
   }
 });
 
-let config;
-try { config = JSON.parse(localStorage.getItem(preferencesKey) || '{}') || {}; } catch { config = {}; }
-const options = ['contrast', 'large-text', 'quiet-motion'];
-
-function applyPreferences() {
-  for (const option of options) {
-    const active = config[option] === true;
-    preferences.querySelector(`[name="${option}"]`).checked = active;
-    document.body.classList.toggle('portal-' + option, active);
+const statusOrder = ['Pending', 'Accepted', 'Ongoing', 'Completed'];
+async function loadDashboard() {
+  const status = document.querySelector('#dashboard-live-status');
+  const metrics = document.querySelector('#dashboard-live-metrics');
+  if (!status || !metrics) return;
+  try {
+    const response = await fetch('/api/scheduling');
+    if (!response.ok) throw new Error('Unavailable');
+    const { requests } = await response.json();
+    metrics.replaceChildren(...statusOrder.map(label => {
+      const cell = document.createElement('div');
+      const title = document.createElement('span');
+      const total = document.createElement('strong');
+      title.textContent = label;
+      total.textContent = requests.filter(item => item.status === label).length;
+      cell.append(title, total);
+      return cell;
+    }));
+    status.textContent = requests.length ? 'Your latest appointment and referral activity.' : 'You have no live requests yet.';
+  } catch {
+    status.textContent = 'The summary is temporarily unavailable. Open Live scheduling to retry.';
   }
 }
-
-function savePreferences() {
-  try { localStorage.setItem(preferencesKey, JSON.stringify(config)); } catch {}
-  applyPreferences();
-}
-document.querySelector('#portal-preferences-open').addEventListener('click', () => preferences.showModal());
-preferences.addEventListener('change', event => {
-  if (!options.includes(event.target.name)) return;
-  config[event.target.name] = event.target.checked;
-  savePreferences();
-});
-document.querySelector('#portal-preferences-reset').addEventListener('click', () => {
-  config = {};
-  savePreferences();
-});
-applyPreferences();
+loadDashboard();

@@ -89,7 +89,7 @@ function home() {
   <section class="portal-wellbeing" aria-labelledby="portal-wellbeing">
     <div><h2 id="portal-wellbeing">Make space for well-being.</h2>
       <p>Explore practical ways to handle stress, find support, and help a friend.</p></div>
-    <div class="portal-hero-actions"><a class="btn gold" href="#wellbeing">Explore Student Well-being <span aria-hidden="true">&rarr;</span></a><a class="portal-hero-link" href="/toolkit.html">Open Student Toolkit</a></div>
+    <div class="portal-hero-actions"><a class="btn gold" href="#wellbeing">Explore Student Well-being <span aria-hidden="true">&rarr;</span></a><a class="portal-hero-link" href="/scheduling.html#my-requests">View my requests</a></div>
   </section>`;
 }
 
@@ -246,13 +246,19 @@ function dashboard() {
   const visits = state.visits.filter(canSeeVisit);
   const counts = ['Scheduled', 'Waiting', 'Ongoing', 'Completed'].map(status => [status, visits.filter(visit => visit.status === status).length]);
   const options = Object.entries(roles).map(([id, label]) => `<option value="${id}" ${id === state.role ? 'selected' : ''}>${label}</option>`).join('');
-  return intro('Dashboard', 'View appointments, walk-ins, and visit progress for the selected preview role.') +
+  return intro('Dashboard', 'Keep track of your guidance requests and upcoming visits.') +
+    `<section class="panel dashboard-live" aria-labelledby="dashboard-live-title">
+      <div><h2 id="dashboard-live-title" class="section-title">Live scheduling</h2>
+      <p id="dashboard-live-status" role="status">Loading your request summary.</p></div>
+      <div class="workflow-actions"><a class="btn maroon" href="/scheduling.html#my-requests">Open requests</a></div>
+      <div id="dashboard-live-metrics" class="dashboard-live-metrics"></div>
+    </section><details class="dashboard-practice"><summary>Practice workspace</summary>` +
     `<section class="panel role-panel">${field('Preview role', 'role', `<select id="role">${options}</select>`)}
     <p class="subtitle">Students schedule visits. Staff advance visits and arrange follow-ups. The psychometrician view shows psychological testing visits.</p></section>
     <section class="grid four workflow-metrics" aria-label="Visit analytics">${counts.map(([status, count]) => `<article class="panel"><h2>${status}</h2><strong>${count}</strong></article>`).join('')}</section>
     <div class="two-col workflow-summary"><section class="panel"><h2 class="section-title">Visits by service</h2><dl class="workflow-counts">${services.map(service => `<div><dt>${service}</dt><dd>${visits.filter(visit => visit.service === service).length}</dd></div>`).join('')}</dl></section>
     <section class="panel"><h2 class="section-title">Activity</h2><dl class="workflow-counts"><div><dt>Walk-ins</dt><dd>${visits.filter(visit => visit.kind === 'walk-in').length}</dd></div><div><dt>Messages</dt><dd>${state.messages.filter(message => message.role === state.role).length}</dd></div><div><dt>Referrals</dt><dd>${state.referrals.filter(canSeeReferral).length}</dd></div><div><dt>Return visits</dt><dd>${visits.filter(visit => visit.returnAt).length}</dd></div></dl></section></div>
-    <section class="panel"><h2 class="section-title">Visit activity</h2>${visitsList(visits)}</section>`;
+    <section class="panel"><h2 class="section-title">Visit activity</h2>${visitsList(visits)}</section></details>`;
 }
 
 function messages() {
@@ -271,8 +277,8 @@ function messages() {
 
 function referrals() {
   const referrals = state.referrals.filter(canSeeReferral);
-  return intro('Referral form', 'Record a referral to the University Guidance Center.') +
-    `<div class="two-col"><section class="panel"><h2 class="section-title">New referral</h2>${previewNote()}
+  return intro('Referrals', 'Send a self-referral or practice filling out a referral form.') +
+    `<div class="two-col"><section class="panel"><h2 class="section-title">Practice referral form</h2><p><a class="workflow-link" href="/scheduling.html?request=referral">Send a real self-referral</a></p>${previewNote()}
     <form class="workflow-form" id="referral-form">
       ${field('Referral type', 'referral-type', select('referral-type', '<option>Self-referral</option><option>Referral for someone else</option>', 'Choose a type'))}
       ${field('Student reference', 'student-reference', '<input id="student-reference" maxlength="80" placeholder="Sample student or ID" required>')}
@@ -447,7 +453,10 @@ function render(scroll = true) {
     if (current) link.setAttribute('aria-current', 'page');
     else link.removeAttribute('aria-current');
   });
+  const keepPracticeOpen = !scroll && page === 'dashboard' && content.querySelector('.dashboard-practice')?.open;
   content.innerHTML = page === 'wellbeing' ? wellbeing(personId) : pages[page]();
+  if (keepPracticeOpen) content.querySelector('.dashboard-practice').open = true;
+  if (page === 'dashboard' && typeof loadDashboard === 'function') loadDashboard();
   if (page === 'messages' && selectedPerson(personId)) content.querySelector('#recipient').value = personId;
   if (page === 'appointments' && selectedPerson(personId)) {
     content.querySelector('#personnel').value = personId;

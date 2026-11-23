@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#500b19">
+  <title>Settings | GuideTrack</title>
+  <link rel="stylesheet" href="/styles.css?v=maroon-yellow">
+  <link rel="stylesheet" href="/workspace.css?v=guidance-calendar">
+  <link rel="stylesheet" href="/portal-shell.css">
+</head>
+<body class="portal-page">
+  <header class="topbar settings-header">
+    <a class="workflow-link" href="/">Back to GuideTrack</a>
+    <form method="post" action="/auth/logout"><button class="btn maroon" type="submit">Log out</button></form>
+  </header>
+  <main class="content settings-content">
+    <div class="page-intro"><h1 class="page-title">Settings</h1><p class="subtitle">Make GuideTrack easier to read and use on this browser.</p></div>
+    <section class="panel" aria-labelledby="display-heading">
+      <h2 class="section-title" id="display-heading">Display and accessibility</h2>
+      <form id="display-preferences" class="settings-options">
+        <label class="settings-option"><span><strong>Higher contrast</strong><small>Use stronger text and borders.</small></span><input type="checkbox" role="switch" name="contrast"></label>
+        <label class="settings-option"><span><strong>Larger interface text</strong><small>Increase the size of text and labels.</small></span><input type="checkbox" role="switch" name="large-text"></label>
+        <label class="settings-option"><span><strong>Reduce motion</strong><small>Turn off interface animations and transitions.</small></span><input type="checkbox" role="switch" name="quiet-motion"></label>
+        <button class="btn outline" type="button" id="settings-reset">Restore defaults</button>
+        <p id="settings-feedback" role="status"></p>
+      </form>
+    </section>
+  </main>
+  <script src="/preferences.js" defer></script>
+</body>
+</html>

@@ -207,9 +207,14 @@ function draw() {
   document.querySelector('#scheduling-title').textContent = testing ? 'Guidance Personnel test view' : schedule.staffMode ? 'Guidance Personnel workspace' : 'Live scheduling';
   document.querySelector('#scheduling-intro').textContent = testing ? 'Practice with sample requests and availability. Changes reset when you reload and never reach the live schedule.' : schedule.staffMode ? 'Manage your availability and assigned appointments and referrals.' : 'Request a time or send a self-referral, then check its status here.';
   workspace.innerHTML = `${scheduleHighlights()}<div class="two-col">${schedule.staffMode ? staffTools() : studentTools()}
-    <section class="panel"><h2 class="section-title">${schedule.staffMode ? 'Assigned requests' : 'My requests'}</h2>
+    <section class="panel" id="my-requests"><h2 class="section-title">${schedule.staffMode ? 'Assigned requests' : 'My requests'}</h2>
     ${requestControls()}</section></div>`;
   drawRequests();
+  if (!schedule.staffMode && new URLSearchParams(location.search).get('request') === 'referral') {
+    document.querySelector('#request-kind').value = 'referral';
+    updateSlots(false);
+  }
+  if (location.hash === '#my-requests') document.querySelector('#my-requests').scrollIntoView();
 }
 
 function updateSlots(preserveDay) {
