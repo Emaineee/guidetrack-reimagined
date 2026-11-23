@@ -76,6 +76,10 @@ function home() {
         <a class="portal-hero-link" href="#guidance">Meet your guidance team</a>
       </div>
     </div>
+    <div class="portal-guidance-logo">
+      <img src="/guidance-center-lockup.png" width="2048" height="2048"
+        alt="University Guidance Center, UPHSD Calamba Campus">
+    </div>
   </section>
   <section aria-labelledby="portal-services">
     <div class="portal-section-heading"><h2 id="portal-services">How can we help?</h2><a href="#dashboard">View dashboard <span aria-hidden="true">&nearr;</span></a></div>
