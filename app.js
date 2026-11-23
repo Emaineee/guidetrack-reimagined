@@ -62,18 +62,35 @@ function previewNote() {
 
 function home() {
   const links = [
-    ['appointments', 'Book an appointment', 'Choose a guidance service and a campus date and time.'],
-    ['walk-in', 'Walk-in visits', 'See how the Guidance Center records an unscheduled visit.'],
-    ['guidance', 'Meet the Guidance Personnel', 'Find your counselor and the rest of the Guidance Center team.'],
-    ['wellbeing', 'Student Well-being', 'Explore self-help tools, group support topics, and how to help a friend.'],
+    ['appointments', '&#9638;', 'Book an appointment', 'Choose a guidance service and find a time to meet.'],
+    ['walk-in', '&#8594;', 'Walk-in visits', 'See how the Guidance Center handles an unscheduled visit.'],
+    ['guidance', '&#9671;', 'Meet your guidance team', 'Find your counselor and their contact details.'],
   ];
-  return `<section class="hero"><div class="hero-copy">
-    <div class="eyebrow">UNIVERSITY GUIDANCE CENTER</div>
-    <h1>We care. We listen. We understand.</h1>
-    <p>If you need hands to care, ears to listen, and a heart to understand, we are here for you.</p>
-    <a class="btn gold" href="#guidance">Meet the Guidance Personnel</a>
-  </div></section>
-  <div class="grid three">${links.map(([page, title, description]) => `<a class="tile" href="#${page}"><h3>${title}</h3><p>${description}</p></a>`).join('')}</div>`;
+  return `<section class="portal-hero">
+    <div class="portal-hero-copy">
+      <span class="portal-campus-label">UPHSD DALTA &middot; Calamba Campus</span>
+      <h1>We care. We listen.<br><em>We understand.</em></h1>
+      <p>If you need hands to care, ears to listen, and a heart to understand, we are here for you.</p>
+      <div class="portal-hero-actions">
+        <a class="btn gold" href="#appointments">Explore appointments <span aria-hidden="true">&rarr;</span></a>
+        <a class="portal-hero-link" href="#guidance">Meet your guidance team</a>
+      </div>
+    </div>
+  </section>
+  <section aria-labelledby="portal-services">
+    <div class="portal-section-heading"><h2 id="portal-services">How can we help?</h2><a href="#dashboard">View dashboard <span aria-hidden="true">&nearr;</span></a></div>
+    <div class="portal-service-grid">
+      ${links.map(([page, icon, title, description]) => `<a class="portal-service" href="#${page}">
+        <span class="portal-service-icon" aria-hidden="true">${icon}</span>
+        <span class="portal-service-arrow" aria-hidden="true">&nearr;</span>
+        <h3>${title}</h3><p>${description}</p></a>`).join('')}
+    </div>
+  </section>
+  <section class="portal-wellbeing" aria-labelledby="portal-wellbeing">
+    <div><h2 id="portal-wellbeing">Make space for well-being.</h2>
+      <p>Explore practical ways to handle stress, find support, and help a friend.</p></div>
+    <a class="btn gold" href="#wellbeing">Explore Student Well-being <span aria-hidden="true">&rarr;</span></a>
+  </section>`;
 }
 
 function guidance() {
@@ -412,6 +429,11 @@ function refreshReminders() {
   });
 }
 
+document.querySelector('.portal-skip').addEventListener('click', event => {
+  event.preventDefault();
+  content.focus();
+  content.scrollIntoView();
+});
 window.addEventListener('hashchange', () => render());
 document.querySelector('#menu').addEventListener('click', event => {
   const open = document.querySelector('.sidebar').classList.toggle('open');
