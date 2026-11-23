@@ -121,3 +121,17 @@ body.auth-page {
 @media (max-width: 380px) {
   .auth-name-fields { grid-template-columns: 1fr; }
 }
+
+.auth-campus-photo {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-top: 24px;
+  border: 1px solid #e2b96e;
+  border-radius: 13px;
+  box-shadow: 0 12px 32px #26071055;
+}
+
+@media (max-width: 720px) {
+  .auth-campus-photo { margin-top: 12px; }
+}

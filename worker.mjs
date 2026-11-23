@@ -2,7 +2,7 @@ import { awarenessReply } from './awareness.mjs';
 import { openAccount, revokeSession, validSession } from './accounts.mjs';
 
 const cookieName = '__Host-guidetrack';
-const publicPaths = new Set(['/login.html', '/signup.html', '/auth.css', '/auth.js', '/styles.css', '/guidance-logo.png']);
+const publicPaths = new Set(['/login.html', '/signup.html', '/auth.css', '/auth.js', '/styles.css', '/guidance-logo.png', '/calamba-campus.jpg']);
 const cookieAttributes = 'Path=/; HttpOnly; Secure; SameSite=Lax';
 const expiredCookie = `${cookieName}=; ${cookieAttributes}; Max-Age=0`;
 
