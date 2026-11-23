@@ -68,17 +68,16 @@ function home() {
   ];
   return `<section class="portal-hero">
     <div class="portal-hero-copy">
-      <span class="portal-campus-label">UPHSD DALTA &middot; Calamba Campus</span>
+      <div class="portal-identity">
+        <span class="portal-emblem" aria-hidden="true"></span>
+        <div><strong>University Guidance Center</strong><span>UPHSD DALTA &middot; Calamba Campus</span></div>
+      </div>
       <h1>We care. We listen.<br><em>We understand.</em></h1>
       <p>If you need hands to care, ears to listen, and a heart to understand, we are here for you.</p>
       <div class="portal-hero-actions">
         <a class="btn gold" href="#appointments">Explore appointments <span aria-hidden="true">&rarr;</span></a>
         <a class="portal-hero-link" href="#guidance">Meet your guidance team</a>
       </div>
-    </div>
-    <div class="portal-guidance-logo">
-      <img src="/guidance-center-lockup.png" width="2048" height="2048"
-        alt="University Guidance Center, UPHSD Calamba Campus">
     </div>
   </section>
   <section aria-labelledby="portal-services">
@@ -467,8 +466,9 @@ function render(scroll = true) {
     if (personId === 'guevarra') content.querySelector('#service').value = 'Psychological testing';
   }
   if (scroll) {
-    document.querySelector('.sidebar').classList.remove('open');
-    document.querySelector('#menu').setAttribute('aria-expanded', 'false');
+    const wasOpen = menu.getAttribute?.('aria-expanded') === 'true';
+    closeNavigation();
+    if (wasOpen) content.focus({ preventScroll: true });
     if (page === 'wellbeing' && personId === 'urgent') {
       content.querySelector('.wellbeing-urgent').scrollIntoView();
       document.querySelector('#awareness-chat').open = false;
@@ -655,10 +655,38 @@ document.querySelector('.portal-skip').addEventListener('click', event => {
   content.focus();
   content.scrollIntoView();
 });
+const drawer = document.querySelector('.sidebar');
+const menu = document.querySelector('#menu');
+const dismissNavigation = document.querySelector('.portal-nav-scrim');
+
+function closeNavigation(restoreFocus = false) {
+  drawer.classList.remove('open');
+  menu.setAttribute('aria-expanded', 'false');
+  if (dismissNavigation) dismissNavigation.hidden = true;
+  if (restoreFocus) menu.focus();
+}
+
 window.addEventListener('hashchange', () => render());
-document.querySelector('#menu').addEventListener('click', event => {
-  const open = document.querySelector('.sidebar').classList.toggle('open');
-  event.currentTarget.setAttribute('aria-expanded', String(open));
+menu.addEventListener('click', () => {
+  if (menu.getAttribute('aria-expanded') === 'true') {
+    closeNavigation();
+    return;
+  }
+  drawer.classList.add('open');
+  menu.setAttribute('aria-expanded', 'true');
+  dismissNavigation.hidden = false;
+  (drawer.querySelector('nav a[aria-current="page"]') || drawer.querySelector('nav a'))?.focus();
+});
+drawer.addEventListener?.('click', event => {
+  const link = event.target.closest('a[href^="#"]');
+  if (link && link.hash === location.hash && menu.getAttribute('aria-expanded') === 'true') {
+    closeNavigation();
+    content.focus({ preventScroll: true });
+  }
+});
+dismissNavigation?.addEventListener('click', () => closeNavigation(true));
+document.addEventListener?.('keydown', event => {
+  if (event.key === 'Escape' && menu.getAttribute('aria-expanded') === 'true') closeNavigation(true);
 });
 setInterval(refreshReminders, 15000);
 render();

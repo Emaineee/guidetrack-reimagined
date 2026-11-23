@@ -14,7 +14,6 @@
 .portal-page .sidebar nav a { color: #f8e9ed; font-weight: 650; min-height: 40px; padding: 9px 10px; }
 .portal-page .sidebar nav a:hover { background: #ffffff12; }
 .portal-page .sidebar nav a.active { background: #f4e0ea; color: #45172c; box-shadow: inset 3px 0 0 #bd748d; }
-.portal-page .portal-nav-icon { color: #edccd8; font-size: 16px; }
 .portal-page .sidebar .support { margin-top: 15px; background: #ffffff0b; border-color: #ffffff20; }
 .portal-page .sidebar .support a { color: #f4d8b3; }
 .portal-page .topbar { min-height: 66px; height: auto; padding-block: 12px; background: #fff; border-color: var(--portal-edge); }
@@ -99,19 +98,36 @@
   .portal-page .topbar .breadcrumbs { display:none; }
 }
 
-.portal-hero { justify-content: space-between; gap: clamp(20px, 4vw, 50px); }
-.portal-hero-copy { min-width: 0; }
-.portal-guidance-logo {
-  flex: 0 0 auto; width: clamp(175px, 22vw, 285px); aspect-ratio: 1;
-  overflow: hidden; border: 2px solid #d9ad60; border-radius: 20px;
-  background: #fff; box-shadow: 0 15px 38px #23091366;
+.portal-emblem {
+  display: block; flex: 0 0 auto; width: 44px; height: 44px; border-radius: 9px;
+  border: 1px solid #e5c399;
+  background: #fff url("/guidance-center-lockup.png") center 14% / 270% no-repeat;
 }
-.portal-guidance-logo img { display: block; width: 100%; height: auto; transform: scale(1.16); }
-@media (max-width: 1100px) {
-  .portal-hero h1 { font-size: clamp(32px, 4.7vw, 53px); }
-  .portal-guidance-logo { width: clamp(150px, 20vw, 205px); }
+.portal-identity { display: flex; align-items: center; gap: 12px; margin-bottom: 19px; }
+.portal-identity .portal-emblem { width: 56px; height: 56px; }
+.portal-identity strong, .portal-identity div > span { display: block; }
+.portal-identity strong { color: #fff5ea; font-weight: 800; font-size: 15px; }
+.portal-identity div > span { color: #f3d7bd; font-size: 12px; margin-top: 3px; line-height: 1.4; }
+.portal-page .sidebar nav a { min-height: 44px; padding-inline: 13px; }
+.portal-nav-scrim { display: none; }
+.portal-page .team-grid, .portal-page .calendar-grid { min-width: 0; }
+.portal-page .content .field, .portal-page .content .two-col > * { min-width: 0; }
+@media (max-width: 760px) {
+  .portal-page .sidebar { visibility: hidden; height: 100dvh; overscroll-behavior: contain; }
+  .portal-page .sidebar.open { visibility: visible; z-index: 52; }
+  .portal-nav-scrim:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 51; border: 0; background: #21101f91; }
+  .portal-page .menu { min-width: 44px; min-height: 44px; }
+  .portal-page .topbar { gap: 6px; padding-inline: 12px; }
+  .portal-page .top-right { margin-left: auto; }
+  .portal-page .content { padding-inline: 14px; }
+  .portal-page .content .field :is(input, select, textarea) { width: 100%; min-width: 0; max-width: 100%; font-size: 16px; }
+  .portal-hero { min-height: 0; padding: 26px 19px; }
+  .portal-hero h1 { font-size: clamp(32px, 8vw, 51px); }
+  .portal-hero-actions { gap: 12px; }
+  .portal-hero-actions .btn { min-height: 44px; }
 }
-@media (min-width: 761px) and (max-width: 950px), (max-width: 570px) {
-  .portal-hero { align-items: flex-start; flex-direction: column; }
-  .portal-guidance-logo { width: min(180px, 55vw); }
+@media (max-width: 380px) {
+  .portal-identity { gap: 9px; }
+  .portal-identity .portal-emblem { width: 46px; height: 46px; }
+  .portal-identity strong { font-size: 14px; }
 }
