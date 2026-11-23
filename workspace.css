@@ -202,3 +202,32 @@ body:has(.awareness-chat) .footer { padding-bottom: 72px; }
   .portal-service { transition: none; }
   .portal-service:hover { transform: none; }
 }
+
+.directory-controls {
+  display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 12px 16px; margin-bottom: 18px;
+}
+.directory-controls p { grid-column: 1 / -1; margin: 0; color: #654d48; font-size: 12px; }
+.directory-grid .person {
+  display: grid; grid-template-rows: auto 1fr auto auto; min-width: 0; row-gap: 0;
+}
+@supports (grid-template-rows: subgrid) {
+  .directory-grid .person { grid-row: span 4; grid-template-rows: subgrid; }
+}
+.directory-grid .person[hidden] { display: none; }
+.directory-grid .portrait { height: auto; aspect-ratio: 4 / 4.6; }
+.directory-grid .portrait img { display: block; }
+.directory-bio, .directory-contact, .directory-actions { padding-inline: 16px; min-width: 0; }
+.directory-bio { padding-top: 15px; }
+.directory-bio h3 { margin: 0 0 7px; color: var(--maroon-deep); font: 800 15px/1.4 Manrope, sans-serif; }
+.directory-bio p { margin: 8px 0 12px; color: #654d48; line-height: 1.5; font-size: 12px; }
+.directory-contact { align-content: start; padding-bottom: 10px; }
+.directory-contact .workflow-email { font-size: 12px; line-height: 1.5; }
+.directory-copy { padding: 6px 0; background: transparent; border: 0; color: var(--maroon); font-weight: 800; font-size: 12px; }
+.directory-copy:hover { text-decoration: underline; }
+.directory-actions { display: grid; align-content: start; gap: 7px; padding-bottom: 16px; }
+.directory-actions .btn { margin: 0; min-height: 38px; text-align: center; }
+@media (max-width: 600px) {
+  .directory-controls { grid-template-columns: 1fr; }
+  .directory-grid .portrait { max-height: 325px; }
+}

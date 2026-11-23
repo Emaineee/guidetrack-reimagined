@@ -93,13 +93,46 @@ function home() {
   </section>`;
 }
 
+function matchesPersonnel(person, query, role) {
+  const searchable = [person.name, person.role, person.cluster, person.email].join(' ').toLowerCase();
+  return (!role || staffRoles[person.id] === role || (role === 'counselor' && person.id === 'cardino')) &&
+    query.trim().toLowerCase().split(/\s+/).every(word => searchable.includes(word));
+}
+
 function guidance() {
-  return intro('Meet the Guidance Personnel', 'University Guidance Center, UPHSD DALTA — Calamba Campus') +
-    `<div class="team-grid">${personnel.map(person => `<article class="person">
+  const roleOptions = Object.entries(roles).filter(([id]) => id !== 'student')
+    .map(([id, label]) => `<option value="${id}">${label}</option>`).join('');
+  return intro('Meet the Guidance Personnel', 'University Guidance Center, UPHSD DALTA &mdash; Calamba Campus') +
+    `<div class="directory-controls panel">
+      ${field('Search staff', 'directory-search', '<input id="directory-search" type="search" placeholder="Name, role, cluster, or email">')}
+      ${field('Filter by role', 'directory-role', `<select id="directory-role"><option value="">All roles</option>${roleOptions}</select>`)}
+      <p id="directory-count" role="status">${personnel.length} team members</p>
+    </div>
+    <p id="directory-empty" class="empty" hidden>No team members match. Try another search or choose a different role.</p>
+    <div class="team-grid directory-grid">${personnel.map(person => `<article class="person" data-person="${person.id}">
       <div class="portrait"><img src="${person.id}.webp" alt="" loading="lazy"></div>
-      <div class="person-body"><h3>${person.name}</h3><div class="role">${person.role}</div>
-      <p>${person.cluster}</p><a class="workflow-email" href="mailto:${person.email}">${person.email}</a>
-      <a class="btn light" href="#messages/${person.id}">Message</a></div></article>`).join('')}</div>`;
+      <div class="directory-bio"><h3>${person.name}</h3><div class="role">${person.role}</div><p>${person.cluster}</p></div>
+      <div class="directory-contact">
+        <a class="workflow-email" href="mailto:${person.email}">${person.email}</a>
+        <button class="directory-copy" type="button" data-copy-email="${person.id}" aria-label="Copy email for ${person.name}">Copy email</button>
+      </div>
+      <div class="directory-actions">
+        <a class="btn light" href="#messages/${person.id}">Message</a>
+        <a class="btn outline" href="#appointments/${person.id}">Schedule a visit</a>
+      </div>
+    </article>`).join('')}</div>`;
+}
+
+function updateDirectory() {
+  const query = content.querySelector('#directory-search').value;
+  const role = content.querySelector('#directory-role').value;
+  let count = 0;
+  content.querySelectorAll('[data-person]').forEach(card => {
+    card.hidden = !matchesPersonnel(selectedPerson(card.dataset.person), query, role);
+    if (!card.hidden) count++;
+  });
+  content.querySelector('#directory-count').textContent = count === 1 ? '1 team member' : `${count} team members`;
+  content.querySelector('#directory-empty').hidden = count > 0;
 }
 
 function canManage(visit) {
@@ -305,6 +338,10 @@ function render(scroll = true) {
   });
   content.innerHTML = page === 'wellbeing' ? wellbeing(personId) : pages[page]();
   if (page === 'messages' && selectedPerson(personId)) content.querySelector('#recipient').value = personId;
+  if (page === 'appointments' && selectedPerson(personId)) {
+    content.querySelector('#personnel').value = personId;
+    if (personId === 'guevarra') content.querySelector('#service').value = 'Psychological testing';
+  }
   if (scroll) {
     document.querySelector('.sidebar').classList.remove('open');
     document.querySelector('#menu').setAttribute('aria-expanded', 'false');
@@ -372,14 +409,32 @@ content.addEventListener('submit', event => {
   render(false);
 });
 
+content.addEventListener('input', event => {
+  if (event.target.id === 'directory-search') updateDirectory();
+});
+
 content.addEventListener('change', event => {
+  if (event.target.id === 'directory-role') {
+    updateDirectory();
+    return;
+  }
   if (event.target.id !== 'role') return;
   state.role = event.target.value;
   render(false);
   content.querySelector('#role').focus();
 });
 
-content.addEventListener('click', event => {
+content.addEventListener('click', async event => {
+  const copy = event.target.closest('[data-copy-email]');
+  if (copy) {
+    try {
+      await navigator.clipboard.writeText(selectedPerson(copy.dataset.copyEmail).email);
+      toast('Email address copied.');
+    } catch {
+      toast('Could not copy the email. Select the address or use the email link.');
+    }
+    return;
+  }
   const button = event.target.closest('button[data-action]');
   if (!button) return;
   const visit = state.visits.find(item => item.id === Number(button.dataset.id));
