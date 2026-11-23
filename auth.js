@@ -16,7 +16,9 @@ if (error) {
   const signup = location.pathname.endsWith('signup.html');
   status.textContent = error === 'unavailable'
     ? 'GuideTrack sign-in is temporarily unavailable. Please try again later.'
-    : signup
+    : error === 'rate-limit'
+      ? 'Too many attempts. Wait a minute and try again.'
+      : signup
       ? 'Could not create your account. Check your details or log in if you already have an account.'
       : 'Email or password was incorrect.';
   status.hidden = false;
