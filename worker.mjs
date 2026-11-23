@@ -1,8 +1,10 @@
 import { awarenessReply } from './awareness.mjs';
-import { openAccount, revokeSession, validSession } from './accounts.mjs';
+import { activateStaff, isStaff, matchesInvitation, openAccount, revokeSession, sessionEmail, validSession } from './accounts.mjs';
+import { staff } from './personnel.mjs';
+import { scheduling } from './scheduling.mjs';
 
 const cookieName = '__Host-guidetrack';
-const publicPaths = new Set(['/login.html', '/signup.html', '/auth.css', '/auth.js', '/styles.css', '/guidance-logo.png', '/calamba-campus.jpg']);
+const publicPaths = new Set(['/login.html', '/signup.html', '/staff-activate.html', '/auth.css', '/auth.js', '/styles.css', '/guidance-logo.png', '/calamba-campus.jpg']);
 const cookieAttributes = 'Path=/; HttpOnly; Secure; SameSite=Lax';
 const expiredCookie = `${cookieName}=; ${cookieAttributes}; Max-Age=0`;
 
@@ -41,6 +43,7 @@ async function account(request, env, signup) {
     if (signup && (!firstName || !lastName || firstName.length > 100 || lastName.length > 100 ||
         password.length < 8 || password !== read('confirm-password'))) return redirect(page + '?error=invalid');
 
+    if (signup && staff.some(person => person.email === email)) return redirect(page + '?error=invalid');
     const token = await openAccount(env.ACCOUNTS, { email, password, firstName, lastName }, signup);
     if (!token) return redirect(page + '?error=invalid');
     return redirect('/', `${cookieName}=${token}; ${cookieAttributes}; Max-Age=28800`);
@@ -50,10 +53,46 @@ async function account(request, env, signup) {
   }
 }
 
+async function staffActivation(request, env) {
+  const page = '/staff-activate.html';
+  try {
+    const { success } = await env.AUTH_LIMIT.limit({ key: request.headers.get('CF-Connecting-IP') || 'local' });
+    if (!success) return redirect(page + '?error=rate-limit');
+    const form = await request.formData();
+    const email = String(form.get('email') ?? '').trim().toLowerCase();
+    const code = String(form.get('code') ?? '').trim().toLowerCase();
+    const password = String(form.get('password') ?? '');
+    const person = staff.find(item => item.email === email);
+    if (!person || password.length < 12 || password.length > 256 || password !== form.get('confirm-password')) {
+      return redirect(page + '?error=invalid');
+    }
+    const invited = JSON.parse(env.STAFF_INVITE_HASHES || '{}');
+    if (!(await matchesInvitation(code, invited[email]))) return redirect(page + '?error=invalid');
+    const token = await activateStaff(env.ACCOUNTS, person, password);
+    return token
+      ? redirect('/scheduling.html', `${cookieName}=${token}; ${cookieAttributes}; Max-Age=28800`)
+      : redirect(page + '?error=invalid');
+  } catch {
+    return redirect(page + '?error=unavailable');
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const { pathname } = url;
+    if (pathname === '/api/scheduling' || pathname.startsWith('/api/scheduling/')) {
+      if (request.method === 'POST' && request.headers.get('Origin') !== url.origin) return new Response(null, { status: 403 });
+      try {
+        const token = sessionToken(request);
+        const email = token && await sessionEmail(env.ACCOUNTS, token);
+        if (!email) return new Response(null, { status: 401 });
+        return await scheduling(request, env.ACCOUNTS, email, await isStaff(env.ACCOUNTS, email));
+      } catch (error) {
+        console.error('GuideTrack scheduling failed', error.name);
+        return Response.json({ error: 'Scheduling is temporarily unavailable.' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
+      }
+    }
     if (request.method === 'POST') {
       if (request.headers.get('Origin') !== url.origin) return new Response('Forbidden', { status: 403 });
       if (pathname === '/api/awareness') {
@@ -72,6 +111,7 @@ export default {
           return new Response(null, { status: error instanceof SyntaxError ? 400 : 503 });
         }
       }
+      if (pathname === '/auth/staff-activate') return staffActivation(request, env);
       if (pathname === '/auth/login') return account(request, env, false);
       if (pathname === '/auth/signup') return account(request, env, true);
       if (pathname === '/auth/logout') {

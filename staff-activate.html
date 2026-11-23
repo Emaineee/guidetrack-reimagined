@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Activate staff access | GuideTrack</title>
+  <link rel="stylesheet" href="styles.css?v=maroon-yellow">
+  <link rel="stylesheet" href="auth.css?v=campus-social">
+</head>
+<body class="auth-page auth-campus-login">
+  <header class="auth-header"><a class="brand" href="/login.html"><span><strong>Guide<span>Track</span></strong><small>UNIVERSITY GUIDANCE CENTER</small></span></a></header>
+  <main class="auth-layout">
+    <aside class="auth-campus"><h2>Guidance <em>Personnel</em></h2><p>Activate your invitation to manage availability and assigned requests.</p></aside>
+    <section class="auth-card">
+      <h1>Activate staff access</h1>
+      <p class="auth-intro">Use your assigned university email and the invitation code provided privately.</p>
+      <form method="post" action="/auth/staff-activate">
+        <div class="field"><label for="email">University email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="code">Invitation code</label><input id="code" name="code" autocomplete="off" maxlength="48" required></div>
+        <div class="field"><label for="password">Choose a password</label><input id="password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="256" required></div>
+        <div class="field"><label for="confirm-password">Confirm password</label><input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required></div>
+        <p id="auth-status" role="status" hidden></p>
+        <button class="btn maroon" type="submit">Activate account</button>
+      </form>
+      <p class="auth-switch"><a class="auth-link" href="login.html">Back to login</a></p>
+    </section>
+  </main>
+  <script src="auth.js?v=staff-invite" defer></script>
+</body>
+</html>

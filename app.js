@@ -230,7 +230,7 @@ function visitsList(visits) {
 
 function appointments() {
   return intro('Appointments', 'Schedule a visit in Philippine time. Reminders appear here within 10 minutes of the start time while GuideTrack is open.') +
-    `<div class="two-col"><section class="panel"><h2 class="section-title">Schedule a visit</h2>
+    `<div class="two-col"><section class="panel"><h2 class="section-title">Schedule a visit</h2><p><a class="workflow-link" href="scheduling.html">Request an appointment with published staff availability</a></p>
     ${previewNote()}${visitForm(false)}</section><section class="panel"><div class="calendar-list-heading"><h2 class="section-title">Scheduled visits</h2><a class="workflow-link" href="#calendar">Open calendar</a></div>
     ${visitsList(state.visits.filter(visit => visit.kind === 'appointment' && canSeeVisit(visit)))}</section></div>`;
 }

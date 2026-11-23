@@ -66,3 +66,42 @@ export async function validSession(db, token) {
 export async function revokeSession(db, token) {
   await db.prepare('DELETE FROM sessions WHERE token_hash = ?').bind(await digest(token)).run();
 }
+export async function activateStaff(db, person, password) {
+  await ensureSchema(db);
+  await db.prepare('CREATE TABLE IF NOT EXISTS staff_members (email TEXT PRIMARY KEY REFERENCES accounts(email))').run();
+  const salt = hex(random(16));
+  const hash = await hashPassword(password, salt);
+  const token = hex(random(32));
+  const now = Math.floor(Date.now() / 1000);
+  const [account] = await db.batch([
+    db.prepare(`INSERT INTO accounts (email, first_name, last_name, password_hash, salt)
+      SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM staff_members WHERE email = ?)
+      ON CONFLICT(email) DO UPDATE SET first_name = excluded.first_name, last_name = excluded.last_name,
+        password_hash = excluded.password_hash, salt = excluded.salt`)
+      .bind(person.email, person.firstName, person.lastName, hash, salt, person.email),
+    db.prepare('DELETE FROM sessions WHERE email = ? AND NOT EXISTS (SELECT 1 FROM staff_members WHERE email = ?)')
+      .bind(person.email, person.email),
+    db.prepare(`INSERT INTO sessions (token_hash, email, expires_at)
+      SELECT ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM staff_members WHERE email = ?)`)
+      .bind(await digest(token), person.email, now + lifetime, person.email),
+    db.prepare('INSERT INTO staff_members (email) VALUES (?) ON CONFLICT DO NOTHING').bind(person.email),
+  ]);
+  return account.meta.changes === 1 ? token : null;
+}
+
+export async function sessionEmail(db, token) {
+  const result = await db.prepare('SELECT email FROM sessions WHERE token_hash = ? AND expires_at > ?')
+    .bind(await digest(token), Math.floor(Date.now() / 1000)).first();
+  return result?.email ?? null;
+}
+
+export async function isStaff(db, email) {
+  if (!email) return false;
+  await db.prepare('CREATE TABLE IF NOT EXISTS staff_members (email TEXT PRIMARY KEY REFERENCES accounts(email))').run();
+  return Boolean(await db.prepare('SELECT 1 FROM staff_members WHERE email = ?').bind(email).first());
+}
+
+export async function matchesInvitation(code, expected) {
+  return /^[a-f0-9]{64}$/.test(expected ?? '') && /^[a-f0-9]{48}$/.test(code) &&
+    equalHash(await digest(code), expected);
+}

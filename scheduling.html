@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Live scheduling | GuideTrack</title>
+  <link rel="stylesheet" href="styles.css?v=maroon-yellow">
+  <link rel="stylesheet" href="workspace.css?v=guidance-calendar">
+  <link rel="stylesheet" href="scheduling.css">
+</head>
+<body class="portal-page">
+  <header class="topbar scheduling-header">
+    <a class="workflow-link" href="/">GuideTrack overview</a>
+    <form method="post" action="/auth/logout"><button class="btn maroon" type="submit">Log out</button></form>
+  </header>
+  <main class="content scheduling-content">
+    <div class="calendar-toolbar scheduling-heading">
+      <div><h1 class="page-title" id="scheduling-title">Live scheduling</h1><p class="subtitle" id="scheduling-intro">Loading appointments and referrals.</p></div>
+      <button id="scheduling-refresh" type="button" class="btn outline">Refresh schedule</button>
+    </div>
+    <p id="scheduling-status" class="note" role="status" hidden></p>
+    <div id="scheduling-workspace"></div>
+  </main>
+  <script src="scheduling.js" defer></script>
+</body>
+</html>

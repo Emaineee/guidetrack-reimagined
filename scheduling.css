@@ -1,0 +1,6 @@
+.scheduling-content { width: min(100%, 1200px); }
+.scheduling-heading { margin-bottom: 18px; }
+.scheduling-header { min-height: 66px; }
+.scheduling-slot { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid #e8d4bd; padding-block: 8px; }
+.scheduling-content [hidden] { display: none; }
+.scheduling-content .workflow-form button { min-height: 38px; }
