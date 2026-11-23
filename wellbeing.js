@@ -46,10 +46,12 @@ chat.addEventListener('click', event => {
     chatInput.focus();
     return;
   }
-  const link = event.target.closest('a[href="#wellbeing/urgent"]');
+  const link = event.target.closest('.chat-links a');
   if (!link) return;
   closeChat();
-  if (location.hash === '#wellbeing/urgent') document.querySelector('.wellbeing-urgent')?.scrollIntoView();
+  if (link.hash === '#wellbeing/urgent' && location.hash === link.hash) {
+    document.querySelector('.wellbeing-urgent')?.scrollIntoView();
+  }
 });
 
 chatForm.addEventListener('submit', async event => {
