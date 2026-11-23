@@ -103,10 +103,10 @@ export default {
           if (!success) return new Response(null, { status: 429 });
           const body = await request.text();
           if (body.length > 5000) return new Response(null, { status: 400 });
-          const { message } = JSON.parse(body);
+          const { message, previousTopic } = JSON.parse(body);
           if (typeof message !== 'string' || !message.trim() || message.length > 800) return new Response(null, { status: 400 });
-          const reply = await awarenessReply(message.trim(), env.AI);
-          return Response.json({ reply }, { headers: { 'Cache-Control': 'no-store' } });
+          const answer = await awarenessReply(message.trim(), env.AI, typeof previousTopic === 'string' ? previousTopic : undefined);
+          return Response.json(answer, { headers: { 'Cache-Control': 'no-store' } });
         } catch (error) {
           return new Response(null, { status: error instanceof SyntaxError ? 400 : 503 });
         }

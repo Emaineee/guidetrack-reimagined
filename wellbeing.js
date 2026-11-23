@@ -5,13 +5,14 @@ const chatForm = document.querySelector('#awareness-form');
 const chatInput = document.querySelector('#awareness-message');
 const typing = document.querySelector('#chat-typing');
 const sendButton = chatForm.querySelector('button');
+let previousTopic;
 
 function closeChat() {
   chat.open = false;
   chatLauncher.focus();
 }
 
-function addChatMessage(author, message, fromUser = false) {
+function addChatMessage(author, message, fromUser = false, guide = null) {
   const item = document.createElement('div');
   item.className = fromUser ? 'chat-message chat-message-user' : 'chat-message';
   const label = document.createElement('span');
@@ -20,6 +21,13 @@ function addChatMessage(author, message, fromUser = false) {
   const bubble = document.createElement('p');
   bubble.textContent = message;
   item.append(label, bubble);
+  if (guide?.path?.startsWith('/') && !guide.path.startsWith('//') && typeof guide.label === 'string') {
+    const link = document.createElement('a');
+    link.className = 'chat-guide-link';
+    link.href = guide.path;
+    link.textContent = guide.label;
+    item.append(link);
+  }
   chatLog.append(item);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
@@ -46,7 +54,7 @@ chat.addEventListener('click', event => {
     chatInput.focus();
     return;
   }
-  const link = event.target.closest('.chat-links a');
+  const link = event.target.closest('.chat-links a, .chat-guide-link');
   if (!link) return;
   closeChat();
   if (link.hash === '#wellbeing/urgent' && location.hash === link.hash) {
@@ -66,7 +74,7 @@ chatForm.addEventListener('submit', async event => {
     const response = await fetch('/api/awareness', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, previousTopic }),
     });
     if (response.status === 401) {
       addChatMessage('GuideTrack', 'Your session expired. Log in again to use the chat.');
@@ -77,8 +85,9 @@ chatForm.addEventListener('submit', async event => {
       return;
     }
     if (!response.ok) throw new Error('Chat unavailable');
-    const { reply } = await response.json();
-    addChatMessage('GuideTrack', reply);
+    const answer = await response.json();
+    previousTopic = answer.topic;
+    addChatMessage('GuideTrack', answer.reply, false, answer);
   } catch {
     addChatMessage('GuideTrack', 'The chat is temporarily unavailable. You can still open Student Well-being or contact the Guidance Center.');
   } finally {

@@ -279,3 +279,10 @@ body:has(.awareness-chat) .footer { padding-bottom: 72px; }
   .calendar-day-count { position: static; align-self: center; }
   .calendar-day-number { align-self: center; }
 }
+
+.chat-message .chat-guide-link {
+  display: inline-block; margin: 5px 0 0 5px; padding: 5px 9px;
+  border: 1px solid #d6ab87; border-radius: 8px; color: var(--maroon);
+  text-decoration: underline; text-underline-offset: 2px;
+  font-size: 12px; font-weight: 800;
+}
