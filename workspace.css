@@ -1,0 +1,24 @@
+.sidebar { overflow-y: auto; }
+.workflow-form { display: grid; gap: 14px; margin-top: 16px; }
+.workflow-form textarea { resize: vertical; }
+.workflow-form .btn, .workflow-actions .btn { justify-self: start; }
+.workflow-metrics, .workflow-summary { margin: 18px 0; }
+.workflow-metrics h2 { margin: 0 0 8px; font-size: 14px; }
+.workflow-metrics strong { font-size: 26px; color: var(--maroon); }
+.workflow-counts div { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; }
+.visit-card { border-top: 1px solid #eee1e5; margin-top: 16px; padding-top: 16px; }
+.visit-card h3 { font-size: 15px; margin: 0; }
+.visit-card p { line-height: 1.6; }
+.visit-heading, .workflow-actions, .appointment-reminder { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.visit-heading { justify-content: space-between; }
+.visit-status { background: #faf1f3; color: var(--maroon); border-radius: 16px; padding: 5px 10px; font-weight: 700; }
+.visit-times { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+.visit-times dt { font-weight: 700; }
+.visit-times dd { margin: 3px 0 0; }
+.appointment-reminder { margin: 12px 0; padding: 9px; background: #fff6e9; color: #6e4a17; border-radius: 8px; font-weight: 700; }
+.workflow-link, .workflow-email { color: var(--maroon); text-decoration: underline; }
+.workflow-email { display: block; overflow-wrap: anywhere; }
+.workflow-message { overflow-wrap: anywhere; white-space: pre-wrap; }
+@media (max-width: 760px) {
+  .workflow-metrics.grid.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
