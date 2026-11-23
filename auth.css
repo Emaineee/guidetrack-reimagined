@@ -122,20 +122,6 @@ body.auth-page {
   .auth-name-fields { grid-template-columns: 1fr; }
 }
 
-.auth-campus-photo {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin-top: 24px;
-  border: 1px solid #e2b96e;
-  border-radius: 13px;
-  box-shadow: 0 12px 32px #26071055;
-}
-
-@media (max-width: 720px) {
-  .auth-campus-photo { margin-top: 12px; }
-}
-
 .auth-campus-social {
   display: inline-flex;
   align-items: center;
@@ -148,3 +134,36 @@ body.auth-page {
   text-underline-offset: 3px;
 }
 .auth-campus-social:focus-visible { outline-color: var(--gold); }
+
+body.auth-campus-login {
+  background-color: #3b0918;
+  background-image:
+    linear-gradient(90deg, #350916f5 0%, #410d1bd9 32%, #4c112585 62%, #3b0918b8 100%),
+    linear-gradient(0deg, #350916ef 0%, transparent 48%, #3509165e 100%),
+    url("calamba-campus.jpg");
+  background-position: center, center, center 46%;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.auth-campus-login .auth-header { border-bottom-color: #fff0ce42; }
+.auth-campus-login .auth-campus::after { content: none; }
+.auth-campus-login .auth-campus h2 { max-width: 11ch; text-shadow: 0 3px 28px #260710aa; }
+.auth-campus-login .auth-campus p { color: #fff1e6; }
+.auth-campus-login .auth-campus-social { margin-top: 18px; }
+.auth-campus-login .auth-card {
+  background: #fff8ed;
+  box-shadow: 0 24px 70px #1e061d69;
+}
+
+@media (max-width: 720px) {
+  body.auth-campus-login {
+    background-image:
+      linear-gradient(180deg, #350916a6 0%, #410d1bbf 26%, #350916 82%),
+      url("calamba-campus.jpg");
+    background-position: center, center top;
+  }
+
+  .auth-campus-login .auth-campus h2 { max-width: 20ch; }
+  .auth-campus-login .auth-campus-social { margin-top: 8px; }
+}
