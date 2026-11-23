@@ -71,7 +71,7 @@ function home() {
     <h1>We care. We listen. We understand.</h1>
     <p>If you need hands to care, ears to listen, and a heart to understand, we are here for you.</p>
     <a class="btn gold" href="#guidance">Meet the Guidance Personnel</a>
-  </div><img class="hero-mark" src="guidance-logo.png" alt=""></section>
+  </div></section>
   <div class="grid three">${links.map(([page, title, description]) => `<a class="tile" href="#${page}"><h3>${title}</h3><p>${description}</p></a>`).join('')}</div>`;
 }
 
