@@ -105,3 +105,8 @@ export async function matchesInvitation(code, expected) {
   return /^[a-f0-9]{64}$/.test(expected ?? '') && /^[a-f0-9]{48}$/.test(code) &&
     equalHash(await digest(code), expected);
 }
+
+// This grants access to sample data only. Live staff permissions use staff_members.
+export async function canTestStaffView(email) {
+  return Boolean(email && (await digest(email)) === "0026199131e526802debe85fb6b55e44be6c81507384989046e7e2517ef01998");
+}

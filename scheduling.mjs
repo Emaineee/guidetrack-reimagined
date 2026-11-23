@@ -1,4 +1,5 @@
 import { staff } from './personnel.mjs';
+import { canTestStaffView } from './accounts.mjs';
 
 const services = ['Guidance consultation', 'Follow-up consultation', 'Psychological testing'];
 const datePattern = /^\d{4}-\d{2}-\d{2}T(?:(?:0[89]|1[0-7]):(?:00|15|30|45)|18:00)$/;
@@ -48,7 +49,7 @@ export async function scheduling(request, db, email, staffMember) {
       WHERE ${staffMember ? 'r.staff_email' : 'r.student_email'} = ? ORDER BY r.id DESC LIMIT 250`).bind(email);
     const [slots, schedule] = await db.batch([staffMember ? slotQuery.bind(today, email) : slotQuery.bind(today), requests]);
     return json({ staff: staff.map(({ email, firstName, lastName, role }) => ({ email, name: firstName + ' ' + lastName, role })),
-      staffMode: staffMember, slots: slots.results, requests: schedule.results });
+      staffMode: staffMember, staffTestAvailable: await canTestStaffView(email), slots: slots.results, requests: schedule.results });
   }
   if (request.method !== 'POST') return json({ error: 'Method not allowed.' }, 405);
 

@@ -11,6 +11,7 @@
 <body class="portal-page">
   <header class="topbar scheduling-header">
     <a class="workflow-link" href="/">GuideTrack overview</a>
+    <a id="staff-test-link" class="btn outline" href="/staff-test" hidden>Staff test view</a>
     <form method="post" action="/auth/logout"><button class="btn maroon" type="submit">Log out</button></form>
   </header>
   <main class="content scheduling-content">
@@ -21,6 +22,6 @@
     <p id="scheduling-status" class="note" role="status" hidden></p>
     <div id="scheduling-workspace"></div>
   </main>
-  <script src="scheduling.js" defer></script>
+  <script src="scheduling.js?v=staff-test" defer></script>
 </body>
 </html>

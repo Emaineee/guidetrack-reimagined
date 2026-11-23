@@ -19,7 +19,58 @@ function message(text) {
   status.hidden = false;
 }
 
+const testing = location.pathname === '/staff-test';
+const testEmail = 'staff@example.invalid';
+const testStaff = [
+  { email: testEmail, name: 'Test Guidance Coordinator' },
+  { email: 'counselor@example.invalid', name: 'Sample Guidance Counselor' },
+  { email: 'associate@example.invalid', name: 'Sample Guidance Associate' },
+  { email: 'testing@example.invalid', name: 'Sample Psychometrician' },
+];
+
+function createPracticeSchedule() {
+  const date = pht(Date.now() + 86400_000).slice(0, 10);
+  return { staffMode: true, staff: testStaff, slots: [{ id: 1, starts_at: date + 'T09:00', reserved: 1 }],
+    requests: [
+      { id: 1, kind: 'appointment', service: 'Guidance consultation', staff_email: testEmail, student_email: 'sample-student@example.invalid', status: 'Pending', starts_at: date + 'T09:00' },
+      { id: 2, kind: 'referral', service: 'Psychological testing', staff_email: testEmail, student_email: 'sample-referral@example.invalid', status: 'Pending', starts_at: null },
+    ] };
+}
+
+const practiceSchedule = testing ? createPracticeSchedule() : null;
+let nextPracticeSlot = 2;
+
+function practiceApi(path, body) {
+  if (!path) return practiceSchedule;
+  if (path === '/slots' && body.action === 'add') {
+    if (body.start <= pht(Date.now())) throw new Error('Choose a future time.');
+    if (practiceSchedule.slots.some(slot => slot.starts_at === body.start)) throw new Error('That time is already published.');
+    practiceSchedule.slots.push({ id: nextPracticeSlot++, starts_at: body.start, reserved: 0 });
+    practiceSchedule.slots.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+    return;
+  }
+  if (path === '/slots' && body.action === 'remove') {
+    practiceSchedule.slots = practiceSchedule.slots.filter(slot => slot.id !== body.id || slot.reserved);
+    return;
+  }
+  if (path === '/decision') {
+    const row = practiceSchedule.requests.find(request => request.id === body.id);
+    if (!row) throw new Error('This sample request is unavailable.');
+    const releaseTime = body.action === 'decline' || body.action === 'refer';
+    if (releaseTime) {
+      const slot = practiceSchedule.slots.find(item => item.starts_at === row.starts_at);
+      if (slot) slot.reserved = 0;
+    }
+    if (body.action === 'refer') {
+      practiceSchedule.requests = practiceSchedule.requests.filter(request => request.id !== row.id);
+      return;
+    }
+    row.status = { accept: 'Accepted', decline: 'Declined', start: 'Ongoing', complete: 'Completed' }[body.action];
+  }
+}
+
 async function api(path, body) {
+  if (testing) return practiceApi(path, body);
   const response = await fetch('/api/scheduling' + path, body ? {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   } : undefined);
@@ -87,8 +138,14 @@ function studentTools() {
 }
 
 function draw() {
-  document.querySelector('#scheduling-title').textContent = schedule.staffMode ? 'Guidance Personnel workspace' : 'Live scheduling';
-  document.querySelector('#scheduling-intro').textContent = schedule.staffMode ? 'Manage your availability and assigned appointments and referrals.' : 'Request a time or send a self-referral, then check its status here.';
+  document.querySelector('#staff-test-link').hidden = !schedule.staffTestAvailable;
+  if (testing) {
+    document.querySelector('#staff-test-link').hidden = false;
+    document.querySelector('#staff-test-link').href = '/scheduling.html';
+    document.querySelector('#staff-test-link').textContent = 'Back to live scheduling';
+  }
+  document.querySelector('#scheduling-title').textContent = testing ? 'Guidance Personnel test view' : schedule.staffMode ? 'Guidance Personnel workspace' : 'Live scheduling';
+  document.querySelector('#scheduling-intro').textContent = testing ? 'Practice with sample requests and availability. Changes reset when you reload and never reach the live schedule.' : schedule.staffMode ? 'Manage your availability and assigned appointments and referrals.' : 'Request a time or send a self-referral, then check its status here.';
   workspace.innerHTML = `<div class="two-col">${schedule.staffMode ? staffTools() : studentTools()}
     <section class="panel"><h2 class="section-title">${schedule.staffMode ? 'Assigned requests' : 'My requests'}</h2>
     ${schedule.requests.map(requestCard).join('') || '<p class="empty">No requests yet.</p>'}</section></div>`;

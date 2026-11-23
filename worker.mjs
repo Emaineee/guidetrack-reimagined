@@ -1,5 +1,5 @@
 import { awarenessReply } from './awareness.mjs';
-import { activateStaff, isStaff, matchesInvitation, openAccount, revokeSession, sessionEmail, validSession } from './accounts.mjs';
+import { activateStaff, canTestStaffView, isStaff, matchesInvitation, openAccount, revokeSession, sessionEmail, validSession } from './accounts.mjs';
 import { staff } from './personnel.mjs';
 import { scheduling } from './scheduling.mjs';
 
@@ -131,7 +131,12 @@ export default {
     const token = sessionToken(request);
     if (!token) return redirect('/login.html', expiredCookie);
     try {
-      if (!(await validSession(env.ACCOUNTS, token))) return redirect('/login.html', expiredCookie);
+      if (pathname === '/staff-test') {
+        const email = await sessionEmail(env.ACCOUNTS, token);
+        if (!email) return redirect('/login.html', expiredCookie);
+        if (!(await canTestStaffView(email))) return new Response('Staff test view unavailable.', { status: 403 });
+        url.pathname = '/scheduling.html';
+      } else if (!(await validSession(env.ACCOUNTS, token))) return redirect('/login.html', expiredCookie);
     } catch {
       return unavailable();
     }
