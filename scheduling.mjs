@@ -76,6 +76,13 @@ export async function scheduling(request, db, email, staffMember) {
     return result.meta.changes ? json({ ok: true }, 201) : json({ error: 'That time is no longer available.' }, 409);
   }
 
+  if (pathname === '/api/scheduling/cancel' && Number.isSafeInteger(body.id)) {
+    const result = await db.prepare(`UPDATE guidance_requests SET status = 'Cancelled'
+      WHERE id = ? AND student_email = ? AND status IN ('Pending', 'Accepted')`)
+      .bind(body.id, email).run();
+    return result.meta.changes ? json({ ok: true }) : json({ error: 'This request cannot be cancelled.' }, 409);
+  }
+
   if (!staffMember) return json({ error: 'Guidance Personnel access required.' }, 403);
   if (pathname === '/api/scheduling/slots') {
     if (body.action === 'add' && validTime(body.start)) {

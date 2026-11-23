@@ -4,3 +4,12 @@
 .scheduling-slot { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid #e8d4bd; padding-block: 8px; }
 .scheduling-content [hidden] { display: none; }
 .scheduling-content .workflow-form button { min-height: 38px; }
+
+.scheduling-highlights { display:grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+.scheduling-highlights > div { display:grid; gap:6px; padding:14px; border-radius:12px; color:#fff3e3; background:linear-gradient(135deg,#6b1931,#451023); }
+.scheduling-highlights span { color:#ffd979; font-size:12px; font-weight:800; }
+.scheduling-highlights strong { font-size:17px; line-height:1.25; }
+.request-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin-top:12px; align-items:end; }
+.request-filters .btn { min-height:40px; justify-self:start; }
+#request-count { color:#654d48; font-size:12px; }
+@media(max-width:490px) { .scheduling-highlights{grid-template-columns:repeat(2,minmax(0,1fr));} .scheduling-highlights > div:last-child{grid-column:1 / -1;} }

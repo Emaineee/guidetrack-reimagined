@@ -89,7 +89,7 @@ function home() {
   <section class="portal-wellbeing" aria-labelledby="portal-wellbeing">
     <div><h2 id="portal-wellbeing">Make space for well-being.</h2>
       <p>Explore practical ways to handle stress, find support, and help a friend.</p></div>
-    <a class="btn gold" href="#wellbeing">Explore Student Well-being <span aria-hidden="true">&rarr;</span></a>
+    <div class="portal-hero-actions"><a class="btn gold" href="#wellbeing">Explore Student Well-being <span aria-hidden="true">&rarr;</span></a><a class="portal-hero-link" href="/toolkit.html">Open Student Toolkit</a></div>
   </section>`;
 }
 

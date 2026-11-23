@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#500b19">
+  <title>Student Toolkit | GuideTrack</title>
+  <link rel="stylesheet" href="/styles.css?v=maroon-yellow">
+  <link rel="stylesheet" href="/workspace.css?v=guidance-calendar">
+  <link rel="stylesheet" href="/toolkit.css?v=student-tools">
+</head>
+<body class="portal-page">
+  <header class="topbar toolkit-header">
+    <a class="brand" href="/"><span class="brand-icon"><img src="/guidance-logo.png" alt=""></span><strong>Guide<span>Track</span></strong></a>
+    <a class="btn outline" href="/">Back to portal</a>
+  </header>
+  <main class="content toolkit">
+    <section class="toolkit-hero">
+      <div><h1>Student Toolkit</h1><p>Plan your day, build a routine, or prepare for your next guidance visit.</p></div>
+      <div class="toolkit-orbit" aria-hidden="true"></div>
+    </section>
+    <div class="toolkit-toolbar">
+      <div class="field"><label for="tool-search">Find a tool</label><input id="tool-search" type="search" placeholder="Try study, sleep, or appointments"></div>
+      <div class="field"><label for="tool-category">Category</label><select id="tool-category">
+        <option value="">All tools</option><option>Study</option><option>Well-being</option><option>Guidance</option>
+      </select></div>
+      <button class="btn outline" type="button" id="tool-clear">Clear filters</button>
+    </div>
+    <div class="toolkit-results-bar"><p id="tool-count" role="status"></p><label><input id="tool-favorites" type="checkbox"> Favorites only</label></div>
+    <div id="tool-grid" class="toolkit-grid"></div>
+  </main>
+  <script src="/toolkit.js?v=student-tools" defer></script>
+</body>
+</html>
