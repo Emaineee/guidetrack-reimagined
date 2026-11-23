@@ -1,5 +1,6 @@
 const encoder = new TextEncoder();
-const iterations = 600_000;
+// Cloudflare's hosted Web Crypto caps PBKDF2 at 100,000 iterations.
+const iterations = 100_000;
 const lifetime = 8 * 60 * 60;
 const hex = bytes => Array.from(new Uint8Array(bytes), byte => byte.toString(16).padStart(2, '0')).join('');
 const random = count => crypto.getRandomValues(new Uint8Array(count));
@@ -8,7 +9,7 @@ const saltBytes = salt => Uint8Array.from(salt.match(/../g), byte => parseInt(by
 
 async function hashPassword(password, salt) {
   const key = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits']);
-  return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-256', salt: saltBytes(salt), iterations }, key, 256));
+  return hex(await crypto.subtle.deriveBits({ name: 'PBKDF2', hash: 'SHA-512', salt: saltBytes(salt), iterations }, key, 256));
 }
 
 function equalHash(left, right) {
