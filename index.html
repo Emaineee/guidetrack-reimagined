@@ -1,4 +1,4 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#740f24"><title>GuideTrack | University Guidance Center</title><meta name="description" content="GuideTrack guidance management portal for UPHSD Calamba"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css?v=maroon-yellow"><link rel="stylesheet" href="workspace.css?v=wellbeing"></head><body><div class="app"><aside class="sidebar"><a class="brand" href="#home"><span class="brand-icon"><img src="guidance-logo.png" alt="Guidance Center logo"></span><span><strong>Guide<span>Track</span></strong><small>UNIVERSITY GUIDANCE CENTER</small></span></a><div class="campus">UPHSD DALTA <span>•</span> CALAMBA CAMPUS</div><div class="nav-label">WORKSPACE</div><nav id="nav" aria-label="GuideTrack workspace">
+<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#740f24"><title>GuideTrack | University Guidance Center</title><meta name="description" content="GuideTrack guidance management portal for UPHSD Calamba"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="styles.css?v=maroon-yellow"><link rel="stylesheet" href="workspace.css?v=chat-interface"></head><body><div class="app"><aside class="sidebar"><a class="brand" href="#home"><span class="brand-icon"><img src="guidance-logo.png" alt="Guidance Center logo"></span><span><strong>Guide<span>Track</span></strong><small>UNIVERSITY GUIDANCE CENTER</small></span></a><div class="campus">UPHSD DALTA <span>•</span> CALAMBA CAMPUS</div><div class="nav-label">WORKSPACE</div><nav id="nav" aria-label="GuideTrack workspace">
 <a href="#home" data-page="home">Overview</a>
 <a href="#dashboard" data-page="dashboard">Dashboard</a>
 <a href="#appointments" data-page="appointments">Appointments</a>
@@ -8,18 +8,39 @@
 <a href="#referrals" data-page="referrals">Referrals</a>
 <a href="#resources" data-page="resources">Resources</a>
 <a href="#wellbeing" data-page="wellbeing">Student Well-being</a>
-</nav><div class="side-bottom"><div class="support"><span class="support-icon">♡</span><strong>We care. We listen. We understand.</strong><p>If you need hands to care, ears to listen, and a heart to understand, we are here for you.</p><a href="#guidance">Meet our team <span>↗</span></a></div><div class="side-footer">GuideTrack • Design preview v2.0</div></div></aside><div class="main-wrap"><header class="topbar"><button id="menu" class="menu" aria-label="Toggle menu">☰</button><div class="breadcrumbs">University Guidance Center <span>/</span> <strong id="crumb">Overview</strong></div><div class="top-right"><form method="post" action="/auth/logout"><button class="btn maroon" type="submit">Log out</button></form></div></header><main id="content" class="content"></main><footer class="footer">© 2026 GuideTrack · University of Perpetual Help System DALTA — Calamba Campus <span>Made with care for the Perpetualite community</span></footer></div></div><div id="toast" role="status" aria-live="polite"></div><script src="app.js?v=wellbeing"></script><details class="awareness-chat" id="awareness-chat">
-  <summary>Well-being chat</summary>
-  <section aria-label="AI-assisted well-being chat">
-    <strong>Well-being chat</strong>
-    <p>AI-assisted mental health education. For urgent concerns, <a href="#wellbeing/urgent">get urgent help</a>.</p>
-    <p>Messages go to Cloudflare Workers AI for topic matching. Please leave out names, student IDs, and private details.</p>
-    <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages"></div>
-    <form id="awareness-form">
-      <label for="awareness-message">Ask about stress, sleep, or finding support</label>
-      <textarea id="awareness-message" maxlength="800" rows="2" required></textarea>
-      <button class="btn maroon" type="submit">Send</button>
-    </form>
-    <a href="https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health" target="_blank" rel="noopener noreferrer">Mental health information from NIMH</a>
+</nav><div class="side-bottom"><div class="support"><span class="support-icon">♡</span><strong>We care. We listen. We understand.</strong><p>If you need hands to care, ears to listen, and a heart to understand, we are here for you.</p><a href="#guidance">Meet our team <span>↗</span></a></div></div></aside><div class="main-wrap"><header class="topbar"><button id="menu" class="menu" aria-label="Toggle menu">☰</button><div class="breadcrumbs">University Guidance Center <span>/</span> <strong id="crumb">Overview</strong></div><div class="top-right"><form method="post" action="/auth/logout"><button class="btn maroon" type="submit">Log out</button></form></div></header><main id="content" class="content"></main><footer class="footer">© 2026 GuideTrack · University of Perpetual Help System DALTA — Calamba Campus <span>Made with care for the Perpetualite community</span></footer></div></div><div id="toast" role="status" aria-live="polite"></div><script src="app.js?v=chat-interface"></script><details class="awareness-chat" id="awareness-chat">
+  <summary class="chat-launcher"><span class="chat-icon" aria-hidden="true"></span><span>Well-being chat</span></summary>
+  <section class="chat-window" aria-labelledby="chat-title">
+    <header class="chat-header">
+      <span class="chat-avatar" aria-hidden="true">&#9825;</span>
+      <div><h2 id="chat-title">Well-being chat</h2><p>GuideTrack &middot; AI-assisted support</p></div>
+      <button class="chat-close" type="button" aria-label="Close Well-being chat">&times;</button>
+    </header>
+    <div class="chat-conversation">
+      <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages" tabindex="0">
+        <div class="chat-message"><span class="chat-author">GuideTrack</span><p>Hi, I?m glad you?re here. We can explore everyday well-being topics or ways to reach out for support. What?s on your mind?</p></div>
+      </div>
+      <div class="chat-typing" id="chat-typing" role="status" hidden>
+        <span class="chat-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span>GuideTrack is finding a reply</span>
+      </div>
+    </div>
+    <div class="chat-composer">
+      <div class="chat-prompts" aria-label="Suggested questions">
+        <button type="button" data-prompt="How can I handle exam stress?">Exam stress</button>
+        <button type="button" data-prompt="How can I build a better sleep routine?">Better sleep</button>
+        <button type="button" data-prompt="How do I reach the Guidance Center?">Find support</button>
+      </div>
+      <form id="awareness-form">
+        <label class="chat-only-screen-reader" for="awareness-message">Your message</label>
+        <textarea id="awareness-message" maxlength="800" rows="2" placeholder="Write a message?" aria-describedby="chat-privacy" required></textarea>
+        <button class="chat-send" type="submit">Send <span aria-hidden="true">&rarr;</span></button>
+      </form>
+      <p id="chat-privacy">Cloudflare Workers AI matches your message to a topic. Leave out private details.</p>
+      <div class="chat-links">
+        <a href="#wellbeing/urgent">Urgent help</a>
+        <a href="https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health" target="_blank" rel="noopener noreferrer">Mental health resources</a>
+      </div>
+    </div>
   </section>
-</details><script src="wellbeing.js" defer></script></body></html>
+</details><script src="wellbeing.js?v=chat-interface" defer></script></body></html>

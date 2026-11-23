@@ -1,22 +1,54 @@
 const chat = document.querySelector('#awareness-chat');
+const chatLauncher = chat.querySelector('summary');
 const chatLog = document.querySelector('#chat-messages');
 const chatForm = document.querySelector('#awareness-form');
 const chatInput = document.querySelector('#awareness-message');
+const typing = document.querySelector('#chat-typing');
 const sendButton = chatForm.querySelector('button');
 
-function addChatMessage(author, message) {
-  const item = document.createElement('p');
-  const label = document.createElement('strong');
+function closeChat() {
+  chat.open = false;
+  chatLauncher.focus();
+}
+
+function addChatMessage(author, message, fromUser = false) {
+  const item = document.createElement('div');
+  item.className = fromUser ? 'chat-message chat-message-user' : 'chat-message';
+  const label = document.createElement('span');
+  label.className = 'chat-author';
   label.textContent = author;
-  item.append(label, document.createTextNode(' ' + message));
+  const bubble = document.createElement('p');
+  bubble.textContent = message;
+  item.append(label, bubble);
   chatLog.append(item);
   chatLog.scrollTop = chatLog.scrollHeight;
 }
 
+chat.querySelector('.chat-close').addEventListener('click', closeChat);
+chat.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && chat.open) {
+    event.preventDefault();
+    closeChat();
+  }
+});
+
+chatInput.addEventListener('keydown', event => {
+  if (event.key === 'Enter' && !event.shiftKey && !event.isComposing && !sendButton.disabled) {
+    event.preventDefault();
+    chatForm.requestSubmit();
+  }
+});
+
 chat.addEventListener('click', event => {
+  const suggestion = event.target.closest('[data-prompt]');
+  if (suggestion) {
+    chatInput.value = suggestion.dataset.prompt;
+    chatInput.focus();
+    return;
+  }
   const link = event.target.closest('a[href="#wellbeing/urgent"]');
   if (!link) return;
-  chat.open = false;
+  closeChat();
   if (location.hash === '#wellbeing/urgent') document.querySelector('.wellbeing-urgent')?.scrollIntoView();
 });
 
@@ -24,10 +56,10 @@ chatForm.addEventListener('submit', async event => {
   event.preventDefault();
   const message = chatInput.value.trim();
   if (!message || sendButton.disabled) return;
-  addChatMessage('You', message);
+  addChatMessage('You', message, true);
   chatInput.value = '';
   sendButton.disabled = true;
-  sendButton.textContent = 'Finding support...';
+  typing.hidden = false;
   try {
     const response = await fetch('/api/awareness', {
       method: 'POST',
@@ -48,7 +80,7 @@ chatForm.addEventListener('submit', async event => {
   } catch {
     addChatMessage('GuideTrack', 'The chat is temporarily unavailable. You can still open Student Well-being or contact the Guidance Center.');
   } finally {
+    typing.hidden = true;
     sendButton.disabled = false;
-    sendButton.textContent = 'Send';
   }
 });

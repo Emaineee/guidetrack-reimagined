@@ -223,10 +223,10 @@ function resources() {
 }
 
 const wellbeingTopics = [
-  ['stress', 'Academic stress and time management', 'Choose one priority for today. Break it into a small first step and make time for a short break.', 'https://www.nimh.nih.gov/health/publications/so-stressed-out-fact-sheet'],
-  ['sleep', 'Sleep and daily routines', 'Try a consistent wake-up time, regular meals, and a quiet wind-down routine.', 'https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health'],
-  ['connection', 'Belonging and social connection', 'Choose a low-pressure way to connect, such as checking in with a classmate or joining a campus activity.', 'https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health'],
-  ['friend', 'Helping a friend', 'Ask how they are doing, listen without judgment, and offer to help them contact a trusted person or counselor.', 'https://www.nimh.nih.gov/health/topics/caring-for-your-mental-health'],
+  ['stress', 'Academic stress and time management', 'Choose one priority for today. Break it into a small first step and make time for a short break.'],
+  ['sleep', 'Sleep and daily routines', 'Try a consistent wake-up time, regular meals, and a quiet wind-down routine.'],
+  ['connection', 'Belonging and social connection', 'Choose a low-pressure way to connect, such as checking in with a classmate or joining a campus activity.'],
+  ['friend', 'Helping a friend', 'Ask how they are doing, listen without judgment, and offer to help them contact a trusted person or counselor.'],
 ];
 
 function wellbeing(section) {
@@ -251,8 +251,8 @@ function wellbeing(section) {
       </section>
       <section class="panel">
         <h2 class="section-title">Self-help library</h2>
-        ${wellbeingTopics.map(([id, title, summary, url]) => `<details ${section === id ? 'open' : ''}><summary>${title}</summary>
-          <p>${summary}</p><a class="workflow-link" href="${url}" target="_blank" rel="noopener noreferrer">Read more at NIMH</a></details>`).join('')}
+        ${wellbeingTopics.map(([id, title, summary]) => `<details ${section === id ? 'open' : ''}><summary>${title}</summary>
+          <p>${summary}</p></details>`).join('')}
       </section>
       <section class="panel">
         <h2 class="section-title">Workshops and group support</h2>
