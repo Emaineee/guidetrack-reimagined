@@ -6,6 +6,7 @@ const chatInput = document.querySelector('#awareness-message');
 const typing = document.querySelector('#chat-typing');
 const sendButton = chatForm.querySelector('button');
 let previousTopic;
+const conversation = [];
 
 function closeChat() {
   chat.open = false;
@@ -74,7 +75,7 @@ chatForm.addEventListener('submit', async event => {
     const response = await fetch('/api/awareness', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, previousTopic }),
+      body: JSON.stringify({ message, previousTopic, history: conversation }),
     });
     if (response.status === 401) {
       addChatMessage('GuideTrack', 'Your session expired. Log in again to use the chat.');
@@ -87,6 +88,11 @@ chatForm.addEventListener('submit', async event => {
     if (!response.ok) throw new Error('Chat unavailable');
     const answer = await response.json();
     previousTopic = answer.topic;
+    if (answer.topic !== 'unavailable') {
+      conversation.push({ role: 'user', content: message.slice(0, 600) },
+        { role: 'assistant', content: answer.reply.slice(0, 600) });
+      if (conversation.length > 6) conversation.splice(0, conversation.length - 6);
+    }
     addChatMessage('GuideTrack', answer.reply, false, answer);
   } catch {
     addChatMessage('GuideTrack', 'The chat is temporarily unavailable. You can still open Student Well-being or contact the Guidance Center.');

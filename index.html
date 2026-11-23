@@ -23,7 +23,7 @@
     </header>
     <div class="chat-conversation">
       <div class="chat-messages" id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages" tabindex="0">
-        <div class="chat-message"><span class="chat-author">GuideTrack</span><p>Hi, I&rsquo;m glad you&rsquo;re here. I can help you use GuideTrack or explore everyday well-being topics. What&rsquo;s on your mind?</p></div>
+        <div class="chat-message"><span class="chat-author">GuideTrack</span><p>Hi, I&rsquo;m glad you&rsquo;re here. Ask about GuideTrack, everyday well-being, or anything you would like to learn.</p></div>
       </div>
       <div class="chat-typing" id="chat-typing" role="status" hidden>
         <span class="chat-dots" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -42,14 +42,14 @@
         <textarea id="awareness-message" maxlength="800" rows="2" placeholder="Write a message&hellip;" aria-describedby="chat-privacy" required></textarea>
         <button class="chat-send" type="submit">Send <span aria-hidden="true">&rarr;</span></button>
       </form>
-      <p id="chat-privacy">The chat may send your message to Cloudflare Workers AI to match it to a topic. Leave out private details.</p>
+      <p id="chat-privacy">Cloudflare Workers AI may receive your message and recent chat turns to reply. Leave out private details.</p>
       <div class="chat-links">
         <a href="#wellbeing/urgent">Urgent help</a>
         <a href="#wellbeing">Mental health resources</a>
       </div>
     </div>
   </section>
-</details><script src="wellbeing.js?v=portal-help" defer></script><dialog id="portal-search" class="portal-dialog">
+</details><script src="wellbeing.js?v=conversation" defer></script><dialog id="portal-search" class="portal-dialog">
   <form method="dialog"><button class="btn outline portal-dialog-close" aria-label="Close search">Close</button></form>
   <h2>Find a page</h2>
   <div class="field"><label for="portal-query">Search GuideTrack</label><input id="portal-query" type="search" placeholder="Try appointments or settings"></div>

@@ -102,10 +102,10 @@ export default {
           const { success } = await env.CHAT_LIMIT.limit({ key: request.headers.get('CF-Connecting-IP') || 'local' });
           if (!success) return new Response(null, { status: 429 });
           const body = await request.text();
-          if (body.length > 5000) return new Response(null, { status: 400 });
-          const { message, previousTopic } = JSON.parse(body);
+          if (body.length > 12000) return new Response(null, { status: 400 });
+          const { message, previousTopic, history } = JSON.parse(body);
           if (typeof message !== 'string' || !message.trim() || message.length > 800) return new Response(null, { status: 400 });
-          const answer = await awarenessReply(message.trim(), env.AI, typeof previousTopic === 'string' ? previousTopic : undefined);
+          const answer = await awarenessReply(message.trim(), env.AI, typeof previousTopic === 'string' ? previousTopic : undefined, history);
           return Response.json(answer, { headers: { 'Cache-Control': 'no-store' } });
         } catch (error) {
           return new Response(null, { status: error instanceof SyntaxError ? 400 : 503 });
