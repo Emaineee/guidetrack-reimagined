@@ -1,4 +1,3 @@
-const form = document.querySelector('#auth-form');
 const password = document.querySelector('#password');
 const confirmation = document.querySelector('#confirm-password');
 const status = document.querySelector('#auth-status');
@@ -12,9 +11,13 @@ if (confirmation) {
   confirmation.addEventListener('input', validatePasswords);
 }
 
-form.addEventListener('submit', (event) => {
-  event.preventDefault();
-  form.reset();
-  status.textContent = 'Preview complete. No account information was sent or saved.';
+const error = new URLSearchParams(location.search).get('error');
+if (error) {
+  const signup = location.pathname.endsWith('signup.html');
+  status.textContent = error === 'unavailable'
+    ? 'GuideTrack sign-in is temporarily unavailable. Please try again later.'
+    : signup
+      ? 'Could not create your account. Check your details or log in if you already have an account.'
+      : 'Email or password was incorrect.';
   status.hidden = false;
-});
+}

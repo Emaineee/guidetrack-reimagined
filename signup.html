@@ -17,7 +17,6 @@
       <span class="brand-icon"><img src="guidance-logo.png" alt="" width="40" height="40"></span>
       <span><strong>Guide<span>Track</span></strong><small>UNIVERSITY GUIDANCE CENTER</small></span>
     </a>
-    <a class="auth-link" href="index.html">Back to overview</a>
   </header>
   <main class="auth-layout">
     <aside class="auth-campus">
@@ -28,24 +27,27 @@
     <section class="auth-card" aria-labelledby="auth-title">
       <h1 id="auth-title">Create your account</h1>
       <p class="auth-intro">Set up your GuideTrack account using your university email.</p>
-      <p class="note" id="preview-note">Account preview only. Use sample details. This form sends and saves nothing.</p>
-      <form id="auth-form" aria-describedby="preview-note">
+      <form id="auth-form" method="post" action="/auth/signup">
         <div class="field">
-          <label for="full-name">Full name</label>
-          <input id="full-name" type="text" autocomplete="name" required>
+          <label for="first-name">First name</label>
+          <input id="first-name" name="first-name" type="text" autocomplete="given-name" required>
+        </div>
+        <div class="field">
+          <label for="last-name">Last name</label>
+          <input id="last-name" name="last-name" type="text" autocomplete="family-name" required>
         </div>
         <div class="field">
           <label for="email">University email</label>
-          <input id="email" type="email" autocomplete="email" required>
+          <input id="email" name="email" type="email" autocomplete="email" required>
         </div>
         <div class="field">
           <label for="password">Password</label>
-          <input id="password" type="password" autocomplete="new-password" minlength="8" aria-describedby="password-hint" required>
+          <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" aria-describedby="password-hint" required>
         </div>
         <p id="password-hint" class="auth-hint">Use at least 8 characters.</p>
         <div class="field">
           <label for="confirm-password">Confirm password</label>
-          <input id="confirm-password" type="password" autocomplete="new-password" required>
+          <input id="confirm-password" name="confirm-password" type="password" autocomplete="new-password" required>
         </div>
         <button type="submit" class="btn maroon">Sign up</button>
         <p id="auth-status" role="status" hidden></p>
@@ -53,6 +55,6 @@
       <p class="auth-switch">Already have an account? <a class="auth-link" href="login.html">Log in</a></p>
     </section>
   </main>
-  <script src="auth.js" defer></script>
+  <script src="auth.js?v=account" defer></script>
 </body>
 </html>

@@ -1,23 +1,9 @@
-# GuideTrack Reimagined — Cloudflare Pages-ready frontend
+# GuideTrack Reimagined
 
-A new visual frontend based on the GuideTrack/SAPES modules (Overview, Appointments, Concerns, Guidance Center, Resources). The original `Emaineee/sapes` repository is not modified.
+GuideTrack for UPHSD DALTA Calamba uses a Cloudflare Worker to authenticate visitors before serving the portal. The login and sign-up pages are public. Appointment, messaging, referral, and dashboard activity remains a browser preview using sample data.
 
-## Deploy for free
+## Deploy
 
-1. Create a **new GitHub repository** (e.g. `guidetrack-reimagined`).
-2. Upload the **contents** of this folder to the repository root.
-3. In Cloudflare dashboard choose **Workers & Pages → Create → Pages → Connect to Git**, select the new repository.
-4. Use **Framework preset: None**, **Build command: leave empty**, **Build output directory: /** (repository root).
-5. Deploy. The `index.html` is at the repository root.
+Deploy this repository as the `guidetrack-reimagined` Cloudflare Worker using the checked-in `wrangler.toml` (for example, `npx wrangler deploy` from the repository root). If using Workers Builds, connect the repository and use `npx wrangler deploy` as its deploy command. A static-only upload or Pages deployment does not run the authentication gate.
 
-You may also upload the folder directly using Cloudflare Pages Direct Upload.
-
-## Important limitations
-
-This is a **static, responsive design preview**, not a production guidance system. It does not authenticate users, save appointments, submit concerns, or connect to a database. Demo forms deliberately do not transmit or store sensitive student information. The original Express/EJS application and API routes are not yet migrated.
-
-For production, integrate secure server-side authentication, the GuideTrack API, role-based permissions, session handling, database storage, and privacy protections before accepting real student data.
-
-## Attribution and verification
-
-Uses the four staff portraits and Guidance Center logo provided for this project. Please verify each person's name, credentials, title, and cluster with the Guidance Center before publishing.
+Set `GUIDETRACK_API_URL` to the HTTPS base URL for the GuideTrack API, including its `/api` prefix. The Worker calls `/auth/login`, `/auth/register`, and `/auth/me` on that API. Verify a signed-out request to `/` and `/index.html` redirects to `/login.html` before sharing the live portal URL.

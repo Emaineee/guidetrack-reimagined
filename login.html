@@ -17,7 +17,6 @@
       <span class="brand-icon"><img src="guidance-logo.png" alt="" width="40" height="40"></span>
       <span><strong>Guide<span>Track</span></strong><small>UNIVERSITY GUIDANCE CENTER</small></span>
     </a>
-    <a class="auth-link" href="index.html">Back to overview</a>
   </header>
   <main class="auth-layout">
     <aside class="auth-campus">
@@ -28,15 +27,14 @@
     <section class="auth-card" aria-labelledby="auth-title">
       <h1 id="auth-title">Welcome back</h1>
       <p class="auth-intro">Log in to your GuideTrack account.</p>
-      <p class="note" id="preview-note">Account preview only. Use sample details. This form sends and saves nothing.</p>
-      <form id="auth-form" aria-describedby="preview-note">
+      <form id="auth-form" method="post" action="/auth/login">
         <div class="field">
           <label for="email">University email</label>
-          <input id="email" type="email" autocomplete="email" required>
+          <input id="email" name="email" type="email" autocomplete="email" required>
         </div>
         <div class="field">
           <label for="password">Password</label>
-          <input id="password" type="password" autocomplete="current-password" required>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
         </div>
         <button type="submit" class="btn maroon">Log in</button>
         <p id="auth-status" role="status" hidden></p>
@@ -44,6 +42,6 @@
       <p class="auth-switch">New to GuideTrack? <a class="auth-link" href="signup.html">Create an account</a></p>
     </section>
   </main>
-  <script src="auth.js" defer></script>
+  <script src="auth.js?v=account" defer></script>
 </body>
 </html>

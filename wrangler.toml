@@ -1,0 +1,12 @@
+name = "guidetrack-reimagined"
+main = "worker.mjs"
+compatibility_date = "2026-11-24"
+
+[assets]
+directory = "."
+binding = "ASSETS"
+run_worker_first = true
+html_handling = "none"
+
+[vars]
+GUIDETRACK_API_URL = "https://guidetrack-api.onrender.com/api"
